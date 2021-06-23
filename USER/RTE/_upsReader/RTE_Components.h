@@ -21,6 +21,8 @@
         #define RTE_CMSIS_RTOS_RTX              /* CMSIS-RTOS Keil RTX */
 /*  GigaDevice::Device:GD32F1x0_StdPeripherals:DMA:3.2.0 */
 #define RTE_DEVICE_STDPERIPHERALS_DMA
+/*  GigaDevice::Device:GD32F1x0_StdPeripherals:FWDGT:3.2.0 */
+#define RTE_DEVICE_STDPERIPHERALS_FWDGT
 /*  GigaDevice::Device:GD32F1x0_StdPeripherals:GPIO:3.2.0 */
 #define RTE_DEVICE_STDPERIPHERALS_GPIO
 /*  GigaDevice::Device:GD32F1x0_StdPeripherals:MISC:3.2.0 */

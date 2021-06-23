@@ -413,6 +413,11 @@
               <FileType>1</FileType>
               <FilePath>..\HARDWARE\led.c</FilePath>
             </File>
+            <File>
+              <FileName>fwdgt.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\HARDWARE\fwdgt.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -448,6 +453,12 @@
         </targetInfos>
       </component>
       <component Cclass="Device" Cgroup="GD32F1x0_StdPeripherals" Csub="DMA" Cvendor="GigaDevice" Cversion="3.2.0" condition="GD32F1x0 STDPERIPHERALS RCU">
+        <package name="GD32F1x0_DFP" schemaVersion="1.1" url="http://gd32mcu.com/data/documents/pack/" vendor="GigaDevice" version="3.2.0"/>
+        <targetInfos>
+          <targetInfo name="upsReader"/>
+        </targetInfos>
+      </component>
+      <component Cclass="Device" Cgroup="GD32F1x0_StdPeripherals" Csub="FWDGT" Cvendor="GigaDevice" Cversion="3.2.0" condition="GD32F1x0 STDPERIPHERALS RCU">
         <package name="GD32F1x0_DFP" schemaVersion="1.1" url="http://gd32mcu.com/data/documents/pack/" vendor="GigaDevice" version="3.2.0"/>
         <targetInfos>
           <targetInfo name="upsReader"/>
@@ -508,6 +519,14 @@
       <file attr="config" category="source" name="Device\Firmware\Peripherals\src\gd32f1x0_dma.c" version="3.2.0">
         <instance index="0">RTE\Device\GD32F130F6\gd32f1x0_dma.c</instance>
         <component Cclass="Device" Cgroup="GD32F1x0_StdPeripherals" Csub="DMA" Cvendor="GigaDevice" Cversion="3.2.0" condition="GD32F1x0 STDPERIPHERALS RCU"/>
+        <package name="GD32F1x0_DFP" schemaVersion="1.1" url="http://gd32mcu.com/data/documents/pack/" vendor="GigaDevice" version="3.2.0"/>
+        <targetInfos>
+          <targetInfo name="upsReader"/>
+        </targetInfos>
+      </file>
+      <file attr="config" category="source" name="Device\Firmware\Peripherals\src\gd32f1x0_fwdgt.c" version="3.2.0">
+        <instance index="0">RTE\Device\GD32F130F6\gd32f1x0_fwdgt.c</instance>
+        <component Cclass="Device" Cgroup="GD32F1x0_StdPeripherals" Csub="FWDGT" Cvendor="GigaDevice" Cversion="3.2.0" condition="GD32F1x0 STDPERIPHERALS RCU"/>
         <package name="GD32F1x0_DFP" schemaVersion="1.1" url="http://gd32mcu.com/data/documents/pack/" vendor="GigaDevice" version="3.2.0"/>
         <targetInfos>
           <targetInfo name="upsReader"/>

@@ -4,7 +4,8 @@
 
 #define osObjectsPublic  // define objects in main module
 #include "osObjects.h"   // RTOS object definitions
-
+#include "led.h"
+#include "fwdgt.h"
 //-------- <<< Use Configuration Wizard in Context Menu >>> -----------------
 //
 // <h>main Configuration
@@ -26,11 +27,19 @@ int main(void)
 
     // initialize peripherals here
     led_init();
+    IWDG_Configuration();
 
     // create 'thread' functions that start executing,
     // example: tid_name = osThreadCreate (osThread(name), NULL);
 
     // osKernelStart();  // start thread execution
+    while (1)
+    {
+        osDelay(500);
+        led_toggle();  // Insert thread code here...
+        fwdgt_counter_reload();
+        // osThreadYield();  // suspend thread
+    }
 }
 
 #ifdef USE_FULL_ASSERT
