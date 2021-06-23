@@ -31,6 +31,7 @@ int main(void)
 
     // create 'thread' functions that start executing,
     // example: tid_name = osThreadCreate (osThread(name), NULL);
+    Init_Ups0Thread();
 
     // osKernelStart();  // start thread execution
     while (1)

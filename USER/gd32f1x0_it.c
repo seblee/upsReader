@@ -69,7 +69,7 @@ void DMA_Channel3_4_IRQHandler(void)
 {
     if (dma_interrupt_flag_get(DMA_CH3, DMA_INT_FLAG_FTF))
     {
-        TE485;
         dma_interrupt_flag_clear(DMA_CH3, DMA_INT_FLAG_G);
+        RE485;
     }
 }

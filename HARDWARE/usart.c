@@ -84,7 +84,7 @@ void uart1_init(uint16_t baudrate)  //???????
 
     /* USART configure */
     usart_deinit(USART1);
-    usart_baudrate_set(USART1, baudrate);
+    usart_baudrate_set(USART1, 115200);
     usart_parity_config(USART1, USART_PM_NONE);
     usart_word_length_set(USART1, USART_WL_8BIT);
     usart_stop_bit_set(USART1, USART_STB_1BIT);
@@ -108,6 +108,10 @@ void uart1_init(uint16_t baudrate)  //???????
 void uart1_dma_send(uint8_t *s_addr, uint16_t length)
 {
     dma_parameter_struct dma_init_struct;
+
+    /* enable DMA clock */
+    rcu_periph_clock_enable(RCU_DMA);
+
     /* deinitialize DMA channel3 */
     dma_deinit(DMA_CH3);
     dma_init_struct.direction    = DMA_MEMORY_TO_PERIPHERAL;
@@ -121,17 +125,21 @@ void uart1_dma_send(uint8_t *s_addr, uint16_t length)
     dma_init_struct.priority     = DMA_PRIORITY_MEDIUM;
     dma_init(DMA_CH3, &dma_init_struct);
 
+    nvic_irq_enable(DMA_Channel3_4_IRQn, 0, 0);
+
+    // usart_interrupt_disable(USART1, USART_INT_RBNE);
+    TE485;
+
     /* configure DMA mode */
     dma_circulation_disable(DMA_CH3);
     dma_memory_to_memory_disable(DMA_CH3);
-    /* USART interrupt configuration */
-    nvic_irq_enable(DMA_Channel3_4_IRQn, 0, 0);
-    usart_interrupt_disable(USART1, USART_INT_RBNE);
+
+    /* USART DMA enable for transmission */
+    usart_dma_transmit_config(USART1, USART_DENT_ENABLE);
+
+    /* enable DMA transfer complete interrupt */
     dma_interrupt_enable(DMA_CH3, DMA_INT_FTF);
 
-    TE485;
     /* enable DMA channel3 */
     dma_channel_enable(DMA_CH3);
-    /* USART DMA enable for transmission and reception */
-    usart_dma_transmit_config(USART1, USART_DENT_ENABLE);
 }
