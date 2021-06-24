@@ -27,6 +27,7 @@ osThreadId tid_sample_name;                             // thread id
 osThreadDef (sample_name, osPriorityNormal, 1, 0);      // thread object
 */
 int Init_Ups0Thread(void);
+extern osThreadId tid_Ups0Thread;  // thread id
 
 // global 'semaphores' ----------------------------------------------------------
 /*

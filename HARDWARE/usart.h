@@ -7,7 +7,7 @@
 #define TE485 gpio_bit_set(GPIOA, GPIO_PIN_1)
 #define RE485 gpio_bit_reset(GPIOA, GPIO_PIN_1)
 
-void uart1_init(uint16_t baudrate);
+void uart1_init(uint32_t baudrate);
 void uart1_dma_send(uint8_t *s_addr, uint16_t length);
 int fputc(int ch, FILE *f);
 

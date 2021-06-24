@@ -44,12 +44,13 @@ static void uart1_gpio_init(void)
     gpio_mode_set(GPIOA, GPIO_MODE_AF, GPIO_PUPD_PULLUP, GPIO_PIN_3);
     gpio_output_options_set(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_10MHZ, GPIO_PIN_3);
 
+#ifdef TE485
     // RS485 direction control
     /* configure led GPIO port */
     gpio_mode_set(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_PULLDOWN, GPIO_PIN_1);
     gpio_output_options_set(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO_PIN_1);
-
     RE485;
+#endif
 }
 
 /*********************************************************
@@ -66,6 +67,7 @@ static void uart1_nvic_init(void)
     nvic_irq_enable(USART1_IRQn, 0, 0);
     /* enable USART TBE interrupt */
     usart_interrupt_enable(USART1, USART_INT_RBNE);
+    usart_interrupt_enable(USART1, USART_INT_AM);
 }
 
 /*********************************************************
@@ -76,7 +78,7 @@ static void uart1_nvic_init(void)
  * @param  None
  * @retval None
  *********************************************************/
-void uart1_init(uint16_t baudrate)  //???????
+void uart1_init(uint32_t baudrate)
 {
     uart1_gpio_init();
 
@@ -84,7 +86,7 @@ void uart1_init(uint16_t baudrate)  //???????
 
     /* USART configure */
     usart_deinit(USART1);
-    usart_baudrate_set(USART1, 115200);
+    usart_baudrate_set(USART1, baudrate);
     usart_parity_config(USART1, USART_PM_NONE);
     usart_word_length_set(USART1, USART_WL_8BIT);
     usart_stop_bit_set(USART1, USART_STB_1BIT);
@@ -92,7 +94,11 @@ void uart1_init(uint16_t baudrate)  //???????
     usart_hardware_flow_cts_config(USART1, USART_CTS_DISABLE);
     usart_transmit_config(USART1, USART_TRANSMIT_ENABLE);
     usart_receive_config(USART1, USART_RECEIVE_ENABLE);
+    usart_address_config(USART1, '\r');
+    usart_address_detection_mode_config(USART1, USART_ADDM_FULLBIT);
+
     usart_enable(USART1);
+
     uart1_nvic_init();
 }
 
@@ -124,11 +130,13 @@ void uart1_dma_send(uint8_t *s_addr, uint16_t length)
     dma_init_struct.periph_width = DMA_PERIPHERAL_WIDTH_8BIT;
     dma_init_struct.priority     = DMA_PRIORITY_MEDIUM;
     dma_init(DMA_CH3, &dma_init_struct);
-
-    nvic_irq_enable(DMA_Channel3_4_IRQn, 0, 0);
-
-    // usart_interrupt_disable(USART1, USART_INT_RBNE);
+#ifdef TE485
     TE485;
+    // nvic_irq_enable(DMA_Channel3_4_IRQn, 0, 0);
+    usart_interrupt_enable(USART1, USART_INT_IDLE);
+    usart_interrupt_flag_clear(USART1, USART_INT_FLAG_IDLE);
+#endif
+    // usart_interrupt_disable(USART1, USART_INT_RBNE);
 
     /* configure DMA mode */
     dma_circulation_disable(DMA_CH3);
@@ -138,7 +146,7 @@ void uart1_dma_send(uint8_t *s_addr, uint16_t length)
     usart_dma_transmit_config(USART1, USART_DENT_ENABLE);
 
     /* enable DMA transfer complete interrupt */
-    dma_interrupt_enable(DMA_CH3, DMA_INT_FTF);
+    // dma_interrupt_enable(DMA_CH3, DMA_INT_FTF);
 
     /* enable DMA channel3 */
     dma_channel_enable(DMA_CH3);
