@@ -1,14 +1,54 @@
+/**
+ * @file usart.c
+ * @author  xiaowine (xiaowine@sina.cn)
+ * @brief
+ * @version 01.00
+ * @date    2021-06-29
+ *
+ * @copyright Copyright (c) {2020}  xiaowine
+ *
+ * @par 修改日志:
+ * <table>
+ * <tr><th>Date       <th>Version <th>Author  <th>Description
+ * <tr><td>2021-06-29 <td>1.0     <td>wangh     <td>内容
+ * </table>
+ * ******************************************************************
+ * *                   .::::
+ * *                 .::::::::
+ * *                ::::::::::
+ * *             ..:::::::::::
+ * *          '::::::::::::
+ * *            .:::::::::
+ * *       '::::::::::::::..        女神助攻,流量冲天
+ * *            ..::::::::::::.     永不宕机,代码无bug
+ * *          ``:::::::::::::::
+ * *           ::::``:::::::::'        .:::
+ * *          ::::'   ':::::'       .::::::::
+ * *        .::::'      ::::     .:::::::'::::
+ * *       .:::'       :::::  .:::::::::' ':::::
+ * *      .::'        :::::.:::::::::'      ':::::
+ * *     .::'         ::::::::::::::'         ``::::
+ * * ...:::           ::::::::::::'              ``::
+ * *```` ':.          ':::::::::'                  ::::.
+ * *                   '.:::::'                    ':'````.
+ * ******************************************************************
+ */
+
+/* Private includes ----------------------------------------------------------*/
 #include "usart.h"
 #include "gd32f1x0.h"
 #include <stdarg.h>
 #include <stdio.h>
 
+/* Private typedef -----------------------------------------------------------*/
+
+/* Private define ------------------------------------------------------------*/
 #define BPS 9600
 
 #define USART0_TDATA_ADDRESS ((uint32_t)0x40013828) /* 130_150 device */
 #define USART0_RDATA_ADDRESS ((uint32_t)0x40013824) /* 130_150 device */
-/* Private function prototypes -----------------------------------------------*/
 
+/* Private macro -------------------------------------------------------------*/
 #ifdef __GNUC__
 /* With GCC/RAISONANCE, small printf (option LD Linker->Libraries->Small printf
    set to 'Yes') calls __io_putchar() */
@@ -17,7 +57,16 @@
 #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
 #endif /* __GNUC__ */
 
+/* Private variables ---------------------------------------------------------*/
+
+/* Public variables ---------------------------------------------------------*/
+uint8_t rx1buffer[BUFFER_SIZE] = {0};
+uint8_t rx1Count               = 0;
+/* Private function prototypes -----------------------------------------------*/
+
 /* Private functions ---------------------------------------------------------*/
+
+/* Private user code ---------------------------------------------------------*/
 
 /*********************************************************
  * @name   uart1_gpio_init
@@ -132,9 +181,10 @@ void uart1_dma_send(uint8_t *s_addr, uint16_t length)
     dma_init(DMA_CH3, &dma_init_struct);
 #ifdef TE485
     TE485;
-    // nvic_irq_enable(DMA_Channel3_4_IRQn, 0, 0);
-    usart_interrupt_enable(USART1, USART_INT_IDLE);
-    usart_interrupt_flag_clear(USART1, USART_INT_FLAG_IDLE);
+    nvic_irq_enable(DMA_Channel3_4_IRQn, 0, 0);
+    dma_interrupt_enable(DMA_CH3, DMA_INT_FTF);
+    // usart_interrupt_enable(USART1, USART_INT_IDLE);
+    // usart_interrupt_flag_clear(USART1, USART_INT_FLAG_IDLE);
 #endif
     // usart_interrupt_disable(USART1, USART_INT_RBNE);
 
@@ -146,7 +196,6 @@ void uart1_dma_send(uint8_t *s_addr, uint16_t length)
     usart_dma_transmit_config(USART1, USART_DENT_ENABLE);
 
     /* enable DMA transfer complete interrupt */
-    // dma_interrupt_enable(DMA_CH3, DMA_INT_FTF);
 
     /* enable DMA channel3 */
     dma_channel_enable(DMA_CH3);

@@ -53,6 +53,7 @@ typedef struct sample_name type_sample_name;            // object data type
 osMessageQId mid_sample_name;                           // message queue id
 osMessageQDef (sample_name, 16, type_sample_name);      // message queue object
 */
+extern osMessageQId ups0ResponseMsgId;
 
 // global 'mail queues' ----------------------------------------------------------
 /*

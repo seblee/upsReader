@@ -50,13 +50,15 @@ void USART1_IRQHandler(void)
     if (RESET != usart_interrupt_flag_get(USART1, USART_INT_FLAG_RBNE))
     {
         /* receive data */
-        usart_data_receive(USART1);
+        if (rx1Count < BUFFER_SIZE)
+            rx1buffer[rx1Count++] = usart_data_receive(USART1);
         usart_interrupt_flag_clear(USART1, USART_INT_FLAG_RBNE);
     }
     if (RESET != usart_interrupt_flag_get(USART1, USART_INT_FLAG_AM))
     {
         usart_interrupt_flag_clear(USART1, USART_INT_FLAG_AM);
         osSignalSet(tid_Ups0Thread, 1);
+        osMessagePut(ups0ResponseMsgId, rx1Count, 0);  // Send Message
     }
 
     if (RESET != usart_interrupt_flag_get(USART1, USART_INT_FLAG_TBE))
@@ -64,11 +66,11 @@ void USART1_IRQHandler(void)
         /* transmit data */
         usart_interrupt_flag_clear(USART1, USART_INT_FLAG_TBE);
     }
-    if (RESET != usart_interrupt_flag_get(USART1, USART_INT_FLAG_IDLE))
+    if (RESET != usart_interrupt_flag_get(USART1, USART_INT_FLAG_TC))
     {
         /* transmit data */
-        usart_interrupt_flag_clear(USART1, USART_INT_FLAG_IDLE);
-        usart_interrupt_disable(USART1, USART_INT_IDLE);
+        usart_interrupt_flag_clear(USART1, USART_INT_FLAG_TC);
+        usart_interrupt_disable(USART1, USART_INT_TC);
 #ifdef TE485
         RE485;
 #endif
@@ -86,5 +88,6 @@ void DMA_Channel3_4_IRQHandler(void)
     if (dma_interrupt_flag_get(DMA_CH3, DMA_INT_FLAG_FTF))
     {
         dma_interrupt_flag_clear(DMA_CH3, DMA_INT_FLAG_G);
+        usart_interrupt_enable(USART1, USART_INT_TC);
     }
 }
