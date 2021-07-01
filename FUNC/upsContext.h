@@ -48,7 +48,14 @@
 typedef enum
 {
     UPS_Q3GS,
-    UPS_QMD,
+    UPS_QFS,
+    UPS_Q3WS,
+    UPS_Q3YV,
+    UPS_QYF,
+    UPS_Q3YC,
+    UPS_Q3LD,
+    UPS_QBYV,
+    UPS_QBYF,
 } _upsCmd_t;
 typedef struct
 {
@@ -98,11 +105,6 @@ typedef struct
     };
 
 } q3gs_t;
-
-typedef struct
-{
-    char upsModel[15];
-} qmd_t;
 
 /* Private macro -------------------------------------------------------------*/
 

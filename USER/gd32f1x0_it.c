@@ -16,6 +16,7 @@
 #include "usart.h"
 #define osObjectsPublic  // define objects in main module
 #include "osObjects.h"   // RTOS object definitions
+#include "upsContext.h"
 
 /*!
     \brief      this function handles USART RBNE interrupt request and TBE interrupt request

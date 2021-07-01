@@ -45,14 +45,19 @@
 
 /* Private macro -------------------------------------------------------------*/
 void q3gsPro(char *buff);
+void qfsPro(char *buff);
+void q3wsPro(char *buff);
 /* Private variables ---------------------------------------------------------*/
 const cmd_map_t commandMap[] = {
     {"Q3GS\r", "(", "\r", q3gsPro},
-    {"QMD\r", "(", "\r", NULL},
+    {"QFS\r", "(", "\r", qfsPro},
+    {"Q3WS\r", "(", "\r", q3wsPro},
 };
 
 uint8_t contextArea[128] = {0};
 q3gs_t *contextQ3GS      = (q3gs_t *)contextArea;
+uint8_t *contextQFS      = (contextArea + sizeof(q3gs_t));
+uint32_t *contextQ3WS    = (uint16_t *)(contextArea + sizeof(q3gs_t) + 1);
 /* Public variables ---------------------------------------------------------*/
 osMessageQId ups0ResponseMsgId;
 osMessageQDef(ups0ResponseMsgId, 5, unsigned char);
@@ -68,14 +73,15 @@ void contextVariablesInit(void)
 osEvent upsCommand(_upsCmd_t cmd, uint32_t timeout)
 {
     osEvent ThreadEvent;
+    memset(rx1buffer, 0, rx1Count);
     rx1Count = 0;
     uart1_dma_send((uint8_t *)commandMap[cmd].cmd, 5);  // strlen(commandMap[cmd].cmd));
     ThreadEvent = osMessageGet(ups0ResponseMsgId, timeout);
     if (ThreadEvent.status == osEventTimeout)
     {
-        ThreadEvent.status = osOK;
+        // ThreadEvent.status = osOK;
     }
-    else if (ThreadEvent.status == osEventMessage)  
+    else if (ThreadEvent.status == osEventMessage)
     {
         if (ThreadEvent.value.v > 0)
         {
@@ -85,6 +91,8 @@ osEvent upsCommand(_upsCmd_t cmd, uint32_t timeout)
             {
                 commandMap[cmd].process(p);
             }
+            memset(rx1buffer, 0, rx1Count);
+            rx1Count = 0;
         }
     }
     return ThreadEvent;
@@ -123,14 +131,24 @@ void q3gsPro(char *buff)
         contextQ3GS->upsStatus |= (((upsSataus[r_out_load] == '0') ? 0 : 1) << r_out_load);
     }
 }
-void qmdPro(char *buff)
+void qfsPro(char *buff)
 {
-    uint8_t i;
-    for (i = 0; i < strlen(buff); i++)
-    {
-        if (*(buff + i) == '#')
-            *(buff + i) = ' ';
-    }
+    // int qfsValue = 0;
+    // sscanf(buff, "(%02d\r", &qfsValue);
+    // *contextQFS = qfsValue;
+    sscanf(buff, "(%02d\r", contextQFS);
+
     // sscanf(buff, "%[ ]%[^ ]%[ ]%[^ ] %[^ ] %[^ ] %[^ ] %[^ ] %[^ ] %[^ ]", TTTTTTTTTTTTTTT, TTTTTTTTTTTTTTT, WWWWWWW,
     //        WWWWWWW, KKK, P_P, MMM, NNN, RR, BB_B);
+}
+void q3wsPro(char *buff)
+{
+    char cache[35] = {0};
+    uint8_t i;
+    sscanf(buff, "(%[^\r]\r", cache);
+    *contextQ3WS = 0;
+    for (i = 0; i < strlen(cache); i++)
+    {
+        *contextQ3WS |= (((cache == '1') ? 1 : 0) << i);
+    }
 }
