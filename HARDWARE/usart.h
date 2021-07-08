@@ -51,10 +51,13 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* Public variables ----------------------------------------------------------*/
+extern uint8_t rx0buffer[BUFFER_SIZE];
+extern uint16_t rx0Count;
 extern uint8_t rx1buffer[BUFFER_SIZE];
-extern uint8_t rx1Count;
+extern uint16_t rx1Count;
 
 /* Private function prototypes -----------------------------------------------*/
+void uart0_init(uint32_t baudrate);
 void uart1_init(uint32_t baudrate);
 void uart1_dma_send(uint8_t *s_addr, uint16_t length);
 int fputc(int ch, FILE *f);

@@ -60,13 +60,98 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* Public variables ---------------------------------------------------------*/
+uint8_t rx0buffer[BUFFER_SIZE] = {0};
+uint16_t rx0Count              = 0;
 uint8_t rx1buffer[BUFFER_SIZE] = {0};
-uint8_t rx1Count               = 0;
+uint16_t rx1Count              = 0;
 /* Private function prototypes -----------------------------------------------*/
 
 /* Private functions ---------------------------------------------------------*/
 
 /* Private user code ---------------------------------------------------------*/
+
+/*********************************************************
+ * @name   uart0_gpio_init
+ * @brief  USART0 GPIO initialization. Both uart port pins and direction control pins are configured
+ * @calls  device drivers
+ * @called uart0_init()
+ * @param  None
+ * @retval None
+ *********************************************************/
+static void uart0_gpio_init(void)
+{
+    /* enable GPIO clock */
+    rcu_periph_clock_enable(RCU_GPIOA);
+    /* connect port to USARTx_Tx */
+    gpio_af_set(GPIOA, GPIO_AF_1, GPIO_PIN_2);
+    /* connect port to USARTx_Rx */
+    gpio_af_set(GPIOA, GPIO_AF_1, GPIO_PIN_3);
+
+    /* configure USART Tx as alternate function push-pull */
+    gpio_mode_set(GPIOA, GPIO_MODE_AF, GPIO_PUPD_PULLUP, GPIO_PIN_2);
+    gpio_output_options_set(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_10MHZ, GPIO_PIN_2);
+
+    /* configure USART Rx as alternate function push-pull */
+    gpio_mode_set(GPIOA, GPIO_MODE_AF, GPIO_PUPD_PULLUP, GPIO_PIN_3);
+    gpio_output_options_set(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_10MHZ, GPIO_PIN_3);
+
+#ifdef TE485
+    // RS485 direction control
+    /* configure led GPIO port */
+    gpio_mode_set(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_PULLDOWN, GPIO_PIN_1);
+    gpio_output_options_set(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO_PIN_1);
+    RE485;
+#endif
+}
+
+/*********************************************************
+ * @name   uart0_nvic_init
+ * @brief  USART0 related IRQ vector initialization, include DMA and USART IRQs
+ * @calls  device drivers
+ * @called uart0_init()
+ * @param  None
+ * @retval None
+ *********************************************************/
+static void uart0_nvic_init(void)
+{
+    /* USART interrupt configuration */
+    nvic_irq_enable(USART0_IRQn, 0, 0);
+    /* enable USART TBE interrupt */
+    usart_interrupt_enable(USART0, USART_INT_RBNE);
+    usart_interrupt_enable(USART0, USART_INT_AM);
+}
+
+/*********************************************************
+ * @name   uart0_init
+ * @brief  General USART0 initialization, after which USART0 is ready to use
+ * @calls  uart0_gpio_init() uart0_nvic_init()
+ * @called Communiction_proc()
+ * @param  None
+ * @retval None
+ *********************************************************/
+void uart0_init(uint32_t baudrate)
+{
+    uart0_gpio_init();
+
+    rcu_periph_clock_enable(RCU_USART0);
+
+    /* USART configure */
+    usart_deinit(USART0);
+    usart_baudrate_set(USART0, baudrate);
+    usart_parity_config(USART0, USART_PM_NONE);
+    usart_word_length_set(USART0, USART_WL_8BIT);
+    usart_stop_bit_set(USART0, USART_STB_1BIT);
+    usart_hardware_flow_rts_config(USART0, USART_RTS_DISABLE);
+    usart_hardware_flow_cts_config(USART0, USART_CTS_DISABLE);
+    usart_transmit_config(USART0, USART_TRANSMIT_ENABLE);
+    usart_receive_config(USART0, USART_RECEIVE_ENABLE);
+    usart_address_config(USART0, '\r');
+    usart_address_detection_mode_config(USART0, USART_ADDM_FULLBIT);
+
+    usart_enable(USART0);
+
+    uart0_nvic_init();
+}
 
 /*********************************************************
  * @name   uart1_gpio_init

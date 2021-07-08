@@ -43,20 +43,136 @@
 /* Private typedef -----------------------------------------------------------*/
 
 /* Private define ------------------------------------------------------------*/
+ 
 
 /* Public define ------------------------------------------------------------*/
 typedef enum
 {
-    UPS_Q3GS,
+    UPS_QPI,
+    UPS_M,
+    UPS_QS,
+    UPS_QMD,
+    UPS_QGS,
     UPS_QFS,
-    UPS_Q3WS,
+    UPS_QWS,
+    UPS_QWF,
+    UPS_QMOD,
+    UPS_QRI,
+    UPS_F,
+    UPS_Q3PV,
+    UPS_Q3PC,
+    UPS_Q3OC,
     UPS_Q3YV,
     UPS_QYF,
     UPS_Q3YC,
     UPS_Q3LD,
+    UPS_QRPV,
     UPS_QBYV,
     UPS_QBYF,
-} _upsCmd_t;
+    UPS_QPAR,
+    UPS_QFLAG,
+    UPS_QVFW,
+    UPS_QVFW2,
+    UPS_QVFW3,
+    UPS_QVER,
+    UPS_QID,
+    UPS_QBV,
+    UPS_QNBV,
+    UPS_QLDL,
+    UPS_QHE,
+    UPS_QFRE,
+    UPS_QSK,
+    UPS_QSKT,
+    UPS_QBDR,
+    UPS_QTPR,
+    UPS_Q5,
+    UPS_QCHGC,
+    UPS_QBUS,
+    UPS_QBUSP,
+    UPS_QBUSN,
+    UPS_QVB,
+    UPS_QV,
+    UPS_QVC,
+    UPS_QVLINE,
+    UPS_QVBYP,
+    UPS_QMAXW,
+    UPS_QMXVA,
+    UPS_QPD,
+    UPS_QBCO,
+    UPS_QIPT,
+    UPS_QNL,
+    UPS_QBAT,
+    UPS_QTV,
+    UPS_QVSOC,
+    UPS_QBTAH,
+    UPS_QPST,
+    UPS_QMF,
+    UPS_QTIME,
+    UPS_QSTZ,
+    UPS_QDWH,
+} _upsInquiryCmd_t;
+
+typedef enum
+{
+    UPS_PE,
+    UPS_PD,
+    UPS_PSK,
+    UPS_PSF,
+    UPS_PGF,
+    UPS_PLV,
+    UPS_PHV,
+    UPS_PF,
+    UPS_PPD,
+    UPS_BATN,
+    UPS_BATGN,
+    UPS_HEH,
+    UPS_HEL,
+    UPS_FREH,
+    UPS_HEFH,
+    UPS_HEFL,
+    UPS_FREL,
+    UPS_BDR,
+    UPS_ID,
+    UPS_RESET,
+    UPS_REEP,
+    UPS_V,
+    UPS_BUS,
+    UPS_F50,
+    UPS_F60,
+    UPS_CHGC,
+    UPS_MAXW,
+    UPS_MXVA,
+    //UPS_V,
+    UPS_VLINE,
+    UPS_VBYP,
+    UPS_BUSP,
+    UPS_BUSN,
+    UPS_VB,
+    UPS_VC,
+    UPS_VOP,
+    UPS_VOPS,
+    UPS_VOPT,
+    UPS_VBATCO,
+    UPS_IPT,
+    UPS_NL,
+    UPS_BATCAP,
+    UPS_BATCOEF,
+    UPS_VDCR,
+    UPS_VDCS,
+    UPS_VDCT,
+    UPS_VSOC,
+    UPS_BATTAH,
+    UPS_PST,
+    UPS_TSET,
+    UPS_DWHRST,
+    UPS_MM,
+    UPS_MU,
+    UPS_MD,
+    UPS_PP1E,
+    UPS_PP1D,
+    UPS_I,
+    UPS_O,
+} _upsSettingCmd_t;
 typedef struct
 {
     char *cmd;
@@ -64,6 +180,52 @@ typedef struct
     char *bkKey;
     void (*process)(char *);
 } cmd_map_t;
+
+typedef struct
+{
+    uint16_t inputVoltage;
+    uint16_t inputFaultValtage;
+    uint16_t outputVoltage;
+    uint16_t outputLoad;
+    uint16_t outputFrequency;
+    uint16_t batteryVoltage;
+    uint16_t internalTemperature;
+    union
+    {
+        uint8_t upsStatus;
+        struct
+        {
+            uint8_t b0 : 1;
+            uint8_t b1 : 1;
+            uint8_t b2 : 1;
+            uint8_t b3 : 1;
+            uint8_t b4 : 1;
+            uint8_t b5 : 1;
+            uint8_t b6 : 1;
+            uint8_t b7 : 1;
+        };
+    };
+} upsQs_t;
+
+typedef struct
+{
+    char model[15];
+    uint8_t powerFactor;
+    union
+    {
+        uint8_t phaseNUM;
+        struct
+        {
+            uint8_t inputPhase : 4;
+            uint8_t outputPhase : 4;
+        };
+    };
+    uint8_t batteryPieceNum;
+    uint16_t nominalVoltageI;
+    uint16_t nominalVoltageO;
+    uint16_t batteryVoltagePerUnit;
+    uint32_t rateVA;
+} upaQmd_t;
 
 typedef struct
 {
@@ -113,7 +275,7 @@ extern const cmd_map_t commandMap[];
 /* Public variables ---------------------------------------------------------*/
 
 /* Private function prototypes -----------------------------------------------*/
-osEvent upsCommand(_upsCmd_t cmd, uint32_t timeout);
+osEvent upsCommand(_upsInquiryCmd_t cmd, uint32_t timeout);
 void contextVariablesInit(void);
 /* Private user code ---------------------------------------------------------*/
 

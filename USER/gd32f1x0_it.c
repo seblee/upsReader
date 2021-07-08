@@ -29,14 +29,28 @@ void USART0_IRQHandler(void)
     if (RESET != usart_interrupt_flag_get(USART0, USART_INT_FLAG_RBNE))
     {
         /* receive data */
-        usart_data_receive(USART0);
+        if (rx0Count < BUFFER_SIZE)
+            rx0Count = 0;
+        rx1buffer[rx0Count++] = usart_data_receive(USART0);
         usart_interrupt_flag_clear(USART0, USART_INT_FLAG_RBNE);
+    }
+    if (RESET != usart_interrupt_flag_get(USART0, USART_INT_FLAG_AM))
+    {
+        usart_interrupt_flag_clear(USART0, USART_INT_FLAG_AM);
+        osSignalSet(tid_Ups0Thread, 1);
+        osMessagePut(ups0ResponseMsgId, rx0Count, 0);  // Send Message
     }
 
     if (RESET != usart_interrupt_flag_get(USART0, USART_INT_FLAG_TBE))
     {
         /* transmit data */
         usart_interrupt_flag_clear(USART0, USART_INT_FLAG_TBE);
+    }
+    if (RESET != usart_interrupt_flag_get(USART0, USART_INT_FLAG_TC))
+    {
+        /* transmit data */
+        usart_interrupt_flag_clear(USART0, USART_INT_FLAG_TC);
+        usart_interrupt_disable(USART0, USART_INT_TC); 
     }
 }
 
@@ -52,7 +66,8 @@ void USART1_IRQHandler(void)
     {
         /* receive data */
         if (rx1Count < BUFFER_SIZE)
-            rx1buffer[rx1Count++] = usart_data_receive(USART1);
+            rx1Count = 0;
+        rx1buffer[rx1Count++] = usart_data_receive(USART1);
         usart_interrupt_flag_clear(USART1, USART_INT_FLAG_RBNE);
     }
     if (RESET != usart_interrupt_flag_get(USART1, USART_INT_FLAG_AM))

@@ -33,7 +33,7 @@ void ups0Thread(void const *argument)
         ups0Event = osSignalWait(1, 500);
         if (ups0Event.status == osEventTimeout)
         {
-            upsCommand(UPS_Q3GS, 5000);
+            upsCommand(UPS_QMD, 5000); 
             // uart1_dma_send(welcome, ARRAYNUM(welcome));
         }
         else
