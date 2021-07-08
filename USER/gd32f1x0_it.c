@@ -50,7 +50,7 @@ void USART0_IRQHandler(void)
     {
         /* transmit data */
         usart_interrupt_flag_clear(USART0, USART_INT_FLAG_TC);
-        usart_interrupt_disable(USART0, USART_INT_TC); 
+        usart_interrupt_disable(USART0, USART_INT_TC);
     }
 }
 
@@ -92,7 +92,19 @@ void USART1_IRQHandler(void)
 #endif
     }
 }
-
+/*!
+       \brief      this function handles DMA_Channel3_4_IRQHandler interrupt
+       \param[in]  none
+       \param[out] none
+       \retval     none
+   */
+void DMA_Channel1_2_IRQHandler(void)
+{
+    if (dma_interrupt_flag_get(DMA_CH1, DMA_INT_FLAG_FTF))
+    {
+        dma_interrupt_flag_clear(DMA_CH1, DMA_INT_FLAG_G);
+    }
+}
 /*!
     \brief      this function handles DMA_Channel3_4_IRQHandler interrupt
     \param[in]  none

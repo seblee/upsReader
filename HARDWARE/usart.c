@@ -64,6 +64,8 @@ uint8_t rx0buffer[BUFFER_SIZE] = {0};
 uint16_t rx0Count              = 0;
 uint8_t rx1buffer[BUFFER_SIZE] = {0};
 uint16_t rx1Count              = 0;
+uint8_t tx1buffer[BUFFER_SIZE] = {0};
+uint16_t tx1Count              = 0;
 /* Private function prototypes -----------------------------------------------*/
 
 /* Private functions ---------------------------------------------------------*/

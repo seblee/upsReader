@@ -6,6 +6,7 @@
 #include "osObjects.h"   // RTOS object definitions
 #include "led.h"
 #include "fwdgt.h"
+#include "spi.h"
 //-------- <<< Use Configuration Wizard in Context Menu >>> -----------------
 //
 // <h>main Configuration
@@ -26,6 +27,7 @@ int main(void)
     // osKernelInitialize();  // initialize CMSIS-RTOS
 
     // initialize peripherals here
+    spiInit();
     led_init();
     IWDG_Configuration();
 
@@ -39,6 +41,11 @@ int main(void)
         osDelay(500);
         led_toggle();  // Insert thread code here...
         fwdgt_counter_reload();
+        if (dma_interrupt_flag_get(DMA_CH1, DMA_INT_FLAG_FTF))
+        {
+            uart1_dma_send dma_interrupt_flag_clear(DMA_CH1, DMA_INT_FLAG_G);
+            spiRestart();
+        }
         // osThreadYield();  // suspend thread
     }
 }

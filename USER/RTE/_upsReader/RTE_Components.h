@@ -29,6 +29,8 @@
 #define RTE_DEVICE_STDPERIPHERALS_MISC
 /*  GigaDevice::Device:GD32F1x0_StdPeripherals:RCU:3.2.0 */
 #define RTE_DEVICE_STDPERIPHERALS_RCU
+/*  GigaDevice::Device:GD32F1x0_StdPeripherals:SPI_I2S:3.2.0 */
+#define RTE_DEVICE_STDPERIPHERALS_SPI
 /*  GigaDevice::Device:GD32F1x0_StdPeripherals:USART:3.2.0 */
 #define RTE_DEVICE_STDPERIPHERALS_USART
 
