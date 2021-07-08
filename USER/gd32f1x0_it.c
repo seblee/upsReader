@@ -98,11 +98,20 @@ void USART1_IRQHandler(void)
        \param[out] none
        \retval     none
    */
+#include <string.h>
+#include "spi.h"
 void DMA_Channel1_2_IRQHandler(void)
 {
     if (dma_interrupt_flag_get(DMA_CH1, DMA_INT_FLAG_FTF))
     {
         dma_interrupt_flag_clear(DMA_CH1, DMA_INT_FLAG_G);
+        memcpy(tx1buffer, spi0DmaRxBuffer, transSize);
+        uart1_dma_send(tx1buffer, transSize);
+        spi0DmaTxBuffer[0]++;
+    }
+    if (dma_interrupt_flag_get(DMA_CH2, DMA_INT_FLAG_FTF))
+    {
+        dma_interrupt_flag_clear(DMA_CH2, DMA_INT_FLAG_G);
     }
 }
 /*!

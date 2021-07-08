@@ -2,6 +2,7 @@
 #include "usart.h"
 #include "upsContext.h"
 #include <string.h>
+#include "spi.h"
 /*----------------------------------------------------------------------------
  *      Thread 1 'Thread_Name': Sample thread
  *---------------------------------------------------------------------------*/
@@ -26,19 +27,37 @@ int Init_Ups0Thread(void)
 
 void ups0Thread(void const *argument)
 {
+    spiInit();
     uart1_init(115200);
     contextVariablesInit();
     while (1)
     {
-        ups0Event = osSignalWait(1, 500);
+        ups0Event = osSignalWait(1, 10);
         if (ups0Event.status == osEventTimeout)
         {
-            upsCommand(UPS_QMD, 5000); 
+            if (dma_flag_get(DMA_CH1, DMA_INT_FLAG_FTF))
+            {
+                memcpy(tx1buffer, spi0DmaRxBuffer, 10);
+                uart1_dma_send(tx1buffer, 10);
+                dma_flag_clear(DMA_CH1, DMA_FLAG_G);
+                spiRestart();
+            }
+           // spiRestart();
+            // upsCommand(UPS_QMD, 5000);
             // uart1_dma_send(welcome, ARRAYNUM(welcome));
         }
         else
         {
             ups0Event.status = osOK;
+
+            if (dma_interrupt_flag_get(DMA_CH1, DMA_INT_FLAG_FTF))
+            {
+                memcpy(tx1buffer, spi0DmaRxBuffer, 10);
+                uart1_dma_send(tx1buffer, 10);
+                dma_interrupt_flag_clear(DMA_CH1, DMA_INT_FLAG_G);
+                spiRestart();
+            }
+
             // rxProcess();
             //               char *p;
             //            p = strstr((void *)rx1buffer, commandMap[UPS_Q3GS].bkHead);

@@ -43,12 +43,15 @@
 /* Private typedef -----------------------------------------------------------*/
 
 /* Private define ------------------------------------------------------------*/
-
+#define BufferSize 256
+#define transSize 128
 /* Private macro -------------------------------------------------------------*/
 
 /* Private variables ---------------------------------------------------------*/
 
 /* Public variables ----------------------------------------------------------*/
+extern uint8_t spi0DmaRxBuffer[BufferSize];
+extern uint8_t spi0DmaTxBuffer[BufferSize];
 
 /* Private function prototypes -----------------------------------------------*/
 

@@ -39,8 +39,7 @@
 /* Private typedef -----------------------------------------------------------*/
 
 /* Private define ------------------------------------------------------------*/
-#define BufferSize 256
-#define transSize 10
+
 /* Private macro -------------------------------------------------------------*/
 
 /* Private variables ---------------------------------------------------------*/
@@ -75,7 +74,7 @@ void gpioConfig(void)
 {
     /* SPI0 GPIO config: NSS/PA4, SCK/PA5, MISO/PA6, MOSI/PA7 */
     gpio_af_set(GPIOA, GPIO_AF_0, GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7);
-    gpio_mode_set(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7);
+    gpio_mode_set(GPIOA, GPIO_MODE_AF, GPIO_PUPD_PULLUP, GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7);
     gpio_output_options_set(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7);
 }
 
@@ -113,12 +112,12 @@ void dmaConfig(void)
     /* SPI0_Rx DMA channel */
     dma_channel_disable(DMA_CH1);
 
-    // nvic_irq_enable(DMA_Channel1_2_IRQn, 0, 0);
-    // dma_interrupt_enable(DMA_CH1, DMA_INT_FTF);
-    // dma_interrupt_enable(DMA_CH2, DMA_INT_FTF);
+    nvic_irq_enable(DMA_Channel1_2_IRQn, 0, 0);
+    dma_interrupt_enable(DMA_CH1, DMA_INT_FTF);
+    dma_interrupt_enable(DMA_CH2, DMA_INT_FTF);
 
-    // dma_circulation_enable(DMA_CH1);
-    // dma_circulation_enable(DMA_CH2);
+    dma_circulation_enable(DMA_CH1);
+    dma_circulation_enable(DMA_CH2);
 }
 
 /*!
@@ -134,11 +133,11 @@ void spiConfig(void)
     spi_i2s_deinit(SPI0);
     /* SPI0 parameter config */
     spi_init_struct.trans_mode           = SPI_TRANSMODE_FULLDUPLEX;
-    spi_init_struct.device_mode          = SPI_MASTER;
+    spi_init_struct.device_mode          = SPI_SLAVE;
     spi_init_struct.frame_size           = SPI_FRAMESIZE_8BIT;
-    spi_init_struct.clock_polarity_phase = SPI_CK_PL_HIGH_PH_1EDGE;
-    spi_init_struct.nss                  = SPI_NSS_HARD;
-    spi_init_struct.prescale             = SPI_PSC_4;
+    spi_init_struct.clock_polarity_phase = SPI_CK_PL_HIGH_PH_2EDGE;
+    spi_init_struct.nss                  = SPI_NSS_SOFT;
+    spi_init_struct.prescale             = SPI_PSC_8;
     spi_init_struct.endian               = SPI_ENDIAN_MSB;
     spi_init(SPI0, &spi_init_struct);
     /* SPI enable */
