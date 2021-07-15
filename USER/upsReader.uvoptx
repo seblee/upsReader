@@ -256,8 +256,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\APP\ups0Thread.c</PathWithFileName>
-      <FilenameWithoutPath>ups0Thread.c</FilenameWithoutPath>
+      <PathWithFileName>..\APP\spiThread.c</PathWithFileName>
+      <FilenameWithoutPath>spiThread.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -276,8 +276,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\FUNC\upsContext.c</PathWithFileName>
-      <FilenameWithoutPath>upsContext.c</FilenameWithoutPath>
+      <PathWithFileName>..\FUNC\crc16.c</PathWithFileName>
+      <FilenameWithoutPath>crc16.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

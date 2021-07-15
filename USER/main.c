@@ -6,18 +6,8 @@
 #include "osObjects.h"   // RTOS object definitions
 #include "led.h"
 #include "fwdgt.h"
-//-------- <<< Use Configuration Wizard in Context Menu >>> -----------------
-//
-// <h>main Configuration
-// =======================
-//
-//   <o>Number of concurrent  BUFFSIZE <1-250>
-//   <i> Defines max. number of user threads that will run at the same time.
-//   <i> Default: 6
-#ifndef BUFFSIZE
-#define BUFFSIZE 5
-#endif
-
+#include "spi.h"
+#include "usart.h"
 /*
  * main: initialize and start the system
  */
@@ -27,12 +17,13 @@ int main(void)
 
     // initialize peripherals here
     led_init();
-   // IWDG_Configuration();
+    spiInit();
+    uart1_init(115200);
+    // IWDG_Configuration();
 
     // create 'thread' functions that start executing,
     // example: tid_name = osThreadCreate (osThread(name), NULL);
-    Init_Ups0Thread();
-
+    initSpiThread();
     // osKernelStart();  // start thread execution
     while (1)
     {

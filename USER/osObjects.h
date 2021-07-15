@@ -26,8 +26,9 @@ extern void sample_name (void const *argument);         // thread function
 osThreadId tid_sample_name;                             // thread id
 osThreadDef (sample_name, osPriorityNormal, 1, 0);      // thread object
 */
-int Init_Ups0Thread(void);
-extern osThreadId tid_Ups0Thread;  // thread id
+int initSpiThread(void);
+extern osThreadId tidSpiThread;  // thread id
+void spiDataPack(uint8_t *cache, uint16_t len, uint8_t Uid);
 
 // global 'semaphores' ----------------------------------------------------------
 /*
@@ -53,7 +54,6 @@ typedef struct sample_name type_sample_name;            // object data type
 osMessageQId mid_sample_name;                           // message queue id
 osMessageQDef (sample_name, 16, type_sample_name);      // message queue object
 */
-extern osMessageQId ups0ResponseMsgId;
 
 // global 'mail queues' ----------------------------------------------------------
 /*

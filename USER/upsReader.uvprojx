@@ -338,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath>..\FUNC;..\HARDWARE</IncludePath>
+              <IncludePath>..\FUNC;..\HARDWARE;..\USER</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -398,9 +398,9 @@
           <GroupName>APP</GroupName>
           <Files>
             <File>
-              <FileName>ups0Thread.c</FileName>
+              <FileName>spiThread.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\APP\ups0Thread.c</FilePath>
+              <FilePath>..\APP\spiThread.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -408,9 +408,9 @@
           <GroupName>FUNC</GroupName>
           <Files>
             <File>
-              <FileName>upsContext.c</FileName>
+              <FileName>crc16.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\FUNC\upsContext.c</FilePath>
+              <FilePath>..\FUNC\crc16.c</FilePath>
             </File>
           </Files>
         </Group>
