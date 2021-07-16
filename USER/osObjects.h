@@ -28,8 +28,8 @@ osThreadDef (sample_name, osPriorityNormal, 1, 0);      // thread object
 */
 int initSpiThread(void);
 extern osThreadId tidSpiThread;  // thread id
-void spiDataPack(uint8_t *cache, uint16_t len, uint8_t Uid);
-
+void spiDataFifoPush(uint8_t *cache, uint16_t len, uint8_t Uid);
+void spiRxCallBack(void);
 // global 'semaphores' ----------------------------------------------------------
 /*
 Example:

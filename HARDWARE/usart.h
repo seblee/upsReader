@@ -70,7 +70,7 @@ typedef enum
 } COM_PORT_E;
 
 /* Private define ------------------------------------------------------------*/
-#define UART0_FIFO_EN 1
+#define UART0_FIFO_EN 0
 #define UART1_FIFO_EN 0
 #define UART2_FIFO_EN 0
 #define UART3_FIFO_EN 0
@@ -96,8 +96,8 @@ typedef enum
 #define U0_TX_EN() gpio_bit_set(GPIOA, GPIO_PIN_1)
 #define U0_RX_EN() gpio_bit_reset(GPIOA, GPIO_PIN_1)
 
-#define U1_TX_EN() gpio_bit_set(GPIOB, GPIO_PIN_1)
-#define U1_RX_EN() gpio_bit_reset(GPIOB, GPIO_PIN_1)
+#define U1_TX_EN() gpio_bit_set(GPIOA, GPIO_PIN_1)
+#define U1_RX_EN() gpio_bit_reset(GPIOA, GPIO_PIN_1)
 
 /* Private variables ---------------------------------------------------------*/
 

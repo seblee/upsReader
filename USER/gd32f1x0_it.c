@@ -36,7 +36,7 @@
 //     if (RESET != usart_interrupt_flag_get(USART0, USART_INT_FLAG_AM))
 //     {
 //         usart_interrupt_flag_clear(USART0, USART_INT_FLAG_AM);
-//         spiDataPack(rx1buffer, rx1Count, 1);
+//         spiDataFifo(rx1buffer, rx1Count, 1);
 //     }
 
 //     if (RESET != usart_interrupt_flag_get(USART0, USART_INT_FLAG_TBE))
@@ -65,16 +65,20 @@ void USART1_IRQHandler(void)
         /* receive data */
         if (rx1Count >= USART_BUF_SIZE)
         {
-            spiDataPack(rx1buffer, rx1Count, 1);
+            spiDataFifoPush(rx1buffer, rx1Count, 1);
             rx1Count = 0;
         }
         rx1buffer[rx1Count++] = usart_data_receive(USART1);
         usart_interrupt_flag_clear(USART1, USART_INT_FLAG_RBNE);
+        usart_interrupt_flag_clear(USART1, USART_INT_FLAG_IDLE);
+        usart_interrupt_enable(USART1, USART_INT_IDLE);
     }
-    if (RESET != usart_interrupt_flag_get(USART1, USART_INT_FLAG_AM))
+    if (RESET != usart_interrupt_flag_get(USART1, USART_INT_FLAG_IDLE))
     {
-        usart_interrupt_flag_clear(USART1, USART_INT_FLAG_AM);
-        spiDataPack(rx1buffer, rx1Count, 1);
+        usart_interrupt_flag_clear(USART1, USART_INT_FLAG_IDLE);
+        usart_interrupt_enable(USART1, USART_INT_RBNE);
+        usart_interrupt_disable(USART1, USART_INT_IDLE);
+        spiDataFifoPush(rx1buffer, rx1Count, 1);
         rx1Count = 0;
     }
 
@@ -88,9 +92,8 @@ void USART1_IRQHandler(void)
         /* transmit data */
         usart_interrupt_flag_clear(USART1, USART_INT_FLAG_TC);
         usart_interrupt_disable(USART1, USART_INT_TC);
-#ifdef TE485
-        RE485;
-#endif
+
+        U1_RX_EN();
     }
 }
 /*!
@@ -105,7 +108,9 @@ void DMA_Channel1_2_IRQHandler(void)
 {
     if (dma_interrupt_flag_get(DMA_CH1, DMA_INT_FLAG_FTF))
     {
-        osSignalSet(tidSpiThread, 1);
+        spiRxCallBack();
+        dma_interrupt_flag_clear(DMA_CH1, DMA_INT_FLAG_G);
+        dma_flag_clear(DMA_CH1, DMA_FLAG_G);
     }
     if (dma_interrupt_flag_get(DMA_CH2, DMA_INT_FLAG_FTF))
     {

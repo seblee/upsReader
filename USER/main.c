@@ -17,9 +17,8 @@ int main(void)
 
     // initialize peripherals here
     led_init();
-    spiInit();
-    uart1_init(115200);
-    bspInitUart();
+   
+   // bspInitUart();
     IWDG_Configuration();
 
     // create 'thread' functions that start executing,
@@ -34,6 +33,13 @@ int main(void)
         // osThreadYield();  // suspend thread
     }
 }
+
+void HardFault_Handler(void)
+{
+    while(1){
+    }
+}
+
 
 #ifdef USE_FULL_ASSERT
 /**

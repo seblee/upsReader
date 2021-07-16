@@ -746,6 +746,7 @@ static void uart1_gpio_init(void)
     // RS485 direction control
     gpio_mode_set(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_PULLDOWN, GPIO_PIN_1);
     gpio_output_options_set(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO_PIN_1);
+    U1_RX_EN();
 }
 
 /*********************************************************
@@ -762,7 +763,6 @@ static void uart1_nvic_init(void)
     nvic_irq_enable(USART1_IRQn, 0, 0);
     /* enable USART TBE interrupt */
     usart_interrupt_enable(USART1, USART_INT_RBNE);
-    usart_interrupt_enable(USART1, USART_INT_AM);
 }
 
 /*********************************************************

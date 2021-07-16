@@ -114,7 +114,6 @@ void dmaConfig(void)
 
     nvic_irq_enable(DMA_Channel1_2_IRQn, 0, 0);
     dma_interrupt_enable(DMA_CH1, DMA_INT_FTF);
-    dma_interrupt_enable(DMA_CH2, DMA_INT_FTF);
 
     dma_circulation_enable(DMA_CH1);
     dma_circulation_enable(DMA_CH2);
