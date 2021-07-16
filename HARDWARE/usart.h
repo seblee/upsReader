@@ -76,7 +76,7 @@ typedef enum
 #define UART3_FIFO_EN 0
 #define UART4_FIFO_EN 0
 
-#define BUFFER_SIZE 128
+#define USART_BUF_SIZE 120
 
 /* 定义串口波特率和FIFO缓冲区大小，分为发送缓冲区和接收缓冲区, 支持全双工 */
 #if UART0_FIFO_EN == 1
@@ -92,26 +92,37 @@ typedef enum
 #endif
 
 /* Private macro -------------------------------------------------------------*/
+
 #define U0_TX_EN() gpio_bit_set(GPIOA, GPIO_PIN_1)
 #define U0_RX_EN() gpio_bit_reset(GPIOA, GPIO_PIN_1)
+
+#define U1_TX_EN() gpio_bit_set(GPIOB, GPIO_PIN_1)
+#define U1_RX_EN() gpio_bit_reset(GPIOB, GPIO_PIN_1)
 
 /* Private variables ---------------------------------------------------------*/
 
 /* Public variables ----------------------------------------------------------*/
-extern uint8_t rx0buffer[BUFFER_SIZE];
+extern uint8_t rx0buffer[USART_BUF_SIZE];
 extern uint16_t rx0Count;
-extern uint8_t tx0buffer[BUFFER_SIZE];
+extern uint8_t tx0buffer[USART_BUF_SIZE];
 extern uint16_t tx0Count;
 
-extern uint8_t rx1buffer[BUFFER_SIZE];
+extern uint8_t rx1buffer[USART_BUF_SIZE];
 extern uint16_t rx1Count;
-extern uint8_t tx1buffer[BUFFER_SIZE];
+extern uint8_t tx1buffer[USART_BUF_SIZE];
 extern uint16_t tx1Count;
 /* Private function prototypes -----------------------------------------------*/
 void uart0_init(uint32_t baudrate);
 void uart1_init(uint32_t baudrate);
 void uart1_dma_send(uint8_t *s_addr, uint16_t length);
 int fputc(int ch, FILE *f);
+void bspInitUart(void);
+void comSendBuf(COM_PORT_E _ucPort, uint8_t *_ucaBuf, uint16_t _usLen);
+void comSendChar(COM_PORT_E _ucPort, uint8_t _ucByte);
+uint8_t comGetChar(COM_PORT_E _ucPort, uint8_t *_pByte);
+
+void comClearTxFifo(COM_PORT_E _ucPort);
+void comClearRxFifo(COM_PORT_E _ucPort);
 
 /* Private user code ---------------------------------------------------------*/
 

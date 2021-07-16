@@ -58,6 +58,7 @@ void spiThread(void const *argument)
                     if (spi0DmaRxBuffer[2] == 0)
                     {
                         memcpy(tx0buffer, &spi0DmaRxBuffer[4], spi0DmaRxBuffer[3]);
+                        comSendBuf(COM0, &spi0DmaRxBuffer[4], spi0DmaRxBuffer[3]);
                         // uart0_dma_send(tx0buffer, spi0DmaRxBuffer[3]);
                         // dma_interrupt_flag_clear(DMA_CH1, DMA_INT_FLAG_G);
                     }

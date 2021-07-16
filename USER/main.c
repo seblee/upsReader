@@ -19,7 +19,8 @@ int main(void)
     led_init();
     spiInit();
     uart1_init(115200);
-    // IWDG_Configuration();
+    bspInitUart();
+    IWDG_Configuration();
 
     // create 'thread' functions that start executing,
     // example: tid_name = osThreadCreate (osThread(name), NULL);

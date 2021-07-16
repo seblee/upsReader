@@ -60,26 +60,39 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* Public variables ---------------------------------------------------------*/
-uint8_t rx0buffer[BUFFER_SIZE] = {0};
-uint16_t rx0Count              = 0;
-uint8_t tx0buffer[BUFFER_SIZE] = {0};
-uint16_t tx0Count              = 0;
+uint8_t rx0buffer[USART_BUF_SIZE] = {0};
+uint16_t rx0Count                 = 0;
+uint8_t tx0buffer[USART_BUF_SIZE] = {0};
+uint16_t tx0Count                 = 0;
 
-uint8_t rx1buffer[BUFFER_SIZE] = {0};
-uint16_t rx1Count              = 0;
-uint8_t tx1buffer[BUFFER_SIZE] = {0};
-uint16_t tx1Count              = 0;
-
+uint8_t rx1buffer[USART_BUF_SIZE] = {0};
+uint16_t rx1Count                 = 0;
+uint8_t tx1buffer[USART_BUF_SIZE] = {0};
+uint16_t tx1Count                 = 0;
+#if UART0_FIFO_EN
 static UART_T g_tUart0;
+#endif
+#if UART1_FIFO_EN
+static UART_T g_tUart1;
+#endif
 /* Private function prototypes -----------------------------------------------*/
 
 /* Private functions ---------------------------------------------------------*/
 static void UartVarInit(void);
 static void InitHardUart(void);
 static void ConfigUartNVIC(void);
+
+#if UART0_FIFO_EN
 static void uart0_gpio_init(void);
 void u0SendBefor(void);
 void u0SendOver(void);
+#endif
+
+#if UART1_FIFO_EN
+static void uart1_gpio_init(void);
+void u1SendBefor(void);
+void u1SendOver(void);
+#endif
 // void u0ReciveNew(uint8_t ch);
 
 static void UartSend(UART_T *_pUart, uint8_t *_ucaBuf, uint16_t _usLen);
@@ -101,6 +114,14 @@ void bspInitUart(void)
     InitHardUart(); /* 配置串口的硬件参数(波特率等) */
 
     ConfigUartNVIC(); /* 配置串口中断 */
+#if UART0_FIFO_EN
+    u0SendOver();
+    u0SendOver();
+#endif
+#if UART1_FIFO_EN
+    u1SendOver();
+    u1SendOver();
+#endif
 }
 
 /*
@@ -118,7 +139,7 @@ UART_T *ComToUart(COM_PORT_E _ucPort)
 #if UART0_FIFO_EN == 1
         return &g_tUart0;
 #else
-        return;
+        return 0;
 #endif
     }
     else if (_ucPort == COM1)
@@ -241,6 +262,7 @@ void comClearRxFifo(COM_PORT_E _ucPort)
     pUart->usRxCount = 0;
 }
 
+#if UART0_FIFO_EN == 1
 void u0SendBefor(void)
 {
     U0_TX_EN();
@@ -249,6 +271,17 @@ void u0SendOver(void)
 {
     U0_RX_EN();
 }
+#endif
+#if UART1_FIFO_EN == 1
+void u1SendBefor(void)
+{
+    U1_TX_EN();
+}
+void u1SendOver(void)
+{
+    U1_RX_EN();
+}
+#endif
 // void u0ReciveNew(uint8_t ch){}
 
 /*
@@ -262,37 +295,37 @@ void u0SendOver(void)
 static void UartVarInit(void)
 {
 #if UART0_FIFO_EN == 1
-    g_tUart0.uart        = USART0;      /* STM32 串口设备 */
-    g_tUart0.pTxBuf      = tx0buffer;   /* 发送缓冲区指针 */
-    g_tUart0.pRxBuf      = rx0buffer;   /* 接收缓冲区指针 */
-    g_tUart0.usTxBufSize = BUFFER_SIZE; /* 发送缓冲区大小 */
-    g_tUart0.usRxBufSize = BUFFER_SIZE; /* 接收缓冲区大小 */
-    g_tUart0.usTxWrite   = 0;           /* 发送FIFO写索引 */
-    g_tUart0.usTxRead    = 0;           /* 发送FIFO读索引 */
-    g_tUart0.usRxWrite   = 0;           /* 接收FIFO写索引 */
-    g_tUart0.usRxRead    = 0;           /* 接收FIFO读索引 */
-    g_tUart0.usRxCount   = 0;           /* 接收到的新数据个数 */
-    g_tUart0.usTxCount   = 0;           /* 待发送的数据个数 */
-    g_tUart0.SendBefor   = u0SendBefor; /* 发送数据前的回调函数 */
-    g_tUart0.SendOver    = u0SendOver;  /* 发送完毕后的回调函数 */
-    g_tUart0.ReciveNew   = 0;           /* 接收到新数据后的回调函数 */
+    g_tUart0.uart        = USART0;         /* 串口外设设备 */
+    g_tUart0.pTxBuf      = tx0buffer;      /* 发送缓冲区指针 */
+    g_tUart0.pRxBuf      = rx0buffer;      /* 接收缓冲区指针 */
+    g_tUart0.usTxBufSize = USART_BUF_SIZE; /* 发送缓冲区大小 */
+    g_tUart0.usRxBufSize = USART_BUF_SIZE; /* 接收缓冲区大小 */
+    g_tUart0.usTxWrite   = 0;              /* 发送FIFO写索引 */
+    g_tUart0.usTxRead    = 0;              /* 发送FIFO读索引 */
+    g_tUart0.usRxWrite   = 0;              /* 接收FIFO写索引 */
+    g_tUart0.usRxRead    = 0;              /* 接收FIFO读索引 */
+    g_tUart0.usRxCount   = 0;              /* 接收到的新数据个数 */
+    g_tUart0.usTxCount   = 0;              /* 待发送的数据个数 */
+    g_tUart0.SendBefor   = u0SendBefor;    /* 发送数据前的回调函数 */
+    g_tUart0.SendOver    = u0SendOver;     /* 发送完毕后的回调函数 */
+    g_tUart0.ReciveNew   = 0;              /* 接收到新数据后的回调函数 */
 #endif
 
 #if UART1_FIFO_EN == 1
-    g_tUart1.uart        = USART1;            /* STM32 串口设备 */
-    g_tUart1.pTxBuf      = g_TxBuf1;          /* 发送缓冲区指针 */
-    g_tUart1.pRxBuf      = g_RxBuf1;          /* 接收缓冲区指针 */
-    g_tUart1.usTxBufSize = UART1_TX_BUF_SIZE; /* 发送缓冲区大小 */
-    g_tUart1.usRxBufSize = UART1_RX_BUF_SIZE; /* 接收缓冲区大小 */
-    g_tUart1.usTxWrite   = 0;                 /* 发送FIFO写索引 */
-    g_tUart1.usTxRead    = 0;                 /* 发送FIFO读索引 */
-    g_tUart1.usRxWrite   = 0;                 /* 接收FIFO写索引 */
-    g_tUart1.usRxRead    = 0;                 /* 接收FIFO读索引 */
-    g_tUart1.usRxCount   = 0;                 /* 接收到的新数据个数 */
-    g_tUart1.usTxCount   = 0;                 /* 待发送的数据个数 */
-    g_tUart1.SendBefor   = 0;                 /* 发送数据前的回调函数 */
-    g_tUart1.SendOver    = 0;                 /* 发送完毕后的回调函数 */
-    g_tUart1.ReciveNew   = 0;                 /* 接收到新数据后的回调函数 */
+    g_tUart1.uart        = USART1;         /* 串口外设设备 */
+    g_tUart1.pTxBuf      = tx1buffer;      /* 发送缓冲区指针 */
+    g_tUart1.pRxBuf      = rx1buffer;      /* 接收缓冲区指针 */
+    g_tUart1.usTxBufSize = USART_BUF_SIZE; /* 发送缓冲区大小 */
+    g_tUart1.usRxBufSize = USART_BUF_SIZE; /* 接收缓冲区大小 */
+    g_tUart1.usTxWrite   = 0;              /* 发送FIFO写索引 */
+    g_tUart1.usTxRead    = 0;              /* 发送FIFO读索引 */
+    g_tUart1.usRxWrite   = 0;              /* 接收FIFO写索引 */
+    g_tUart1.usRxRead    = 0;              /* 接收FIFO读索引 */
+    g_tUart1.usRxCount   = 0;              /* 接收到的新数据个数 */
+    g_tUart1.usTxCount   = 0;              /* 待发送的数据个数 */
+    g_tUart1.SendBefor   = u1SendBefor;    /* 发送数据前的回调函数 */
+    g_tUart1.SendOver    = u1SendOver;     /* 发送完毕后的回调函数 */
+    g_tUart1.ReciveNew   = 0;              /* 接收到新数据后的回调函数 */
 #endif
 }
 
@@ -631,12 +664,9 @@ static void uart0_gpio_init(void)
     gpio_mode_set(GPIOA, GPIO_MODE_AF, GPIO_PUPD_PULLUP, GPIO_PIN_10);
     gpio_output_options_set(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_10MHZ, GPIO_PIN_10);
 
-#ifdef TE485
     // RS485 direction control
     gpio_mode_set(GPIOB, GPIO_MODE_OUTPUT, GPIO_PUPD_PULLDOWN, GPIO_PIN_1);
     gpio_output_options_set(GPIOB, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO_PIN_1);
-    RE485;
-#endif
 }
 
 /*********************************************************
@@ -713,12 +743,9 @@ static void uart1_gpio_init(void)
     gpio_mode_set(GPIOA, GPIO_MODE_AF, GPIO_PUPD_PULLUP, GPIO_PIN_3);
     gpio_output_options_set(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_10MHZ, GPIO_PIN_3);
 
-#ifdef TE485
     // RS485 direction control
     gpio_mode_set(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_PULLDOWN, GPIO_PIN_1);
     gpio_output_options_set(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO_PIN_1);
-    RE485;
-#endif
 }
 
 /*********************************************************
@@ -798,13 +825,12 @@ void uart1_dma_send(uint8_t *s_addr, uint16_t length)
     dma_init_struct.periph_width = DMA_PERIPHERAL_WIDTH_8BIT;
     dma_init_struct.priority     = DMA_PRIORITY_MEDIUM;
     dma_init(DMA_CH3, &dma_init_struct);
-#ifdef TE485
-    TE485;
+
     nvic_irq_enable(DMA_Channel3_4_IRQn, 0, 0);
     dma_interrupt_enable(DMA_CH3, DMA_INT_FTF);
     // usart_interrupt_enable(USART1, USART_INT_IDLE);
     // usart_interrupt_flag_clear(USART1, USART_INT_FLAG_IDLE);
-#endif
+
     // usart_interrupt_disable(USART1, USART_INT_RBNE);
 
     /* configure DMA mode */

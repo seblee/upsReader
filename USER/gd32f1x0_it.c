@@ -28,7 +28,7 @@
 //     if (RESET != usart_interrupt_flag_get(USART0, USART_INT_FLAG_RBNE))
 //     {
 //         /* receive data */
-//         if (rx0Count >= BUFFER_SIZE)
+//         if (rx0Count >= USART_BUF_SIZE)
 //             rx0Count = 0;
 //         rx1buffer[rx0Count++] = usart_data_receive(USART0);
 //         usart_interrupt_flag_clear(USART0, USART_INT_FLAG_RBNE);
@@ -63,8 +63,11 @@ void USART1_IRQHandler(void)
     if (RESET != usart_interrupt_flag_get(USART1, USART_INT_FLAG_RBNE))
     {
         /* receive data */
-        if (rx1Count >= BUFFER_SIZE)
+        if (rx1Count >= USART_BUF_SIZE)
+        {
+            spiDataPack(rx1buffer, rx1Count, 1);
             rx1Count = 0;
+        }
         rx1buffer[rx1Count++] = usart_data_receive(USART1);
         usart_interrupt_flag_clear(USART1, USART_INT_FLAG_RBNE);
     }
@@ -72,6 +75,7 @@ void USART1_IRQHandler(void)
     {
         usart_interrupt_flag_clear(USART1, USART_INT_FLAG_AM);
         spiDataPack(rx1buffer, rx1Count, 1);
+        rx1Count = 0;
     }
 
     if (RESET != usart_interrupt_flag_get(USART1, USART_INT_FLAG_TBE))
