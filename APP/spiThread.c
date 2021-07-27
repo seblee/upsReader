@@ -69,14 +69,14 @@ void spiThread(void const *argument)
                     if (spiRxB[2] == 0)
                     {
                         memcpy(tx0buffer, &spiRxB[4], spiRxB[3]);
-                        //   comSendBuf(COM0, &spiRxB[4], spiRxB[3]);
+                        // comSendBuf(COM0, &spiRxB[4], spiRxB[3]);
                         // uart0_dma_send(tx0buffer, spiRxB[3]);
                         // dma_interrupt_flag_clear(DMA_CH1, DMA_INT_FLAG_G);
                     }
                     if (spiRxB[2] == 1)
-                    {                       
+                    {
                         memcpy(tx1buffer, &spiRxB[4], spiRxB[3]);
-                        U1_TX_EN();  
+                        U1_TX_EN();
                         uart1_dma_send(tx1buffer, spiRxB[3]);
                         dma_interrupt_flag_clear(DMA_CH1, DMA_INT_FLAG_G);
                     }

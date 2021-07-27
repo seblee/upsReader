@@ -439,7 +439,7 @@ static void UartSend(UART_T *_pUart, uint8_t *_ucaBuf, uint16_t _usLen)
 
 			DISABLE_INT();
 			usRead = _pUart->usTxRead;
-			ENABLE_INT();
+			DISABLE_INT();
 
 			if (++usRead >= _pUart->usTxBufSize)
 			{
@@ -457,9 +457,9 @@ static void UartSend(UART_T *_pUart, uint8_t *_ucaBuf, uint16_t _usLen)
         {
             __IO uint16_t usCount;
 
-            //  DISABLE_INT();
+            DISABLE_INT();
             usCount = _pUart->usTxCount;
-            //    ENABLE_INT();
+            ENABLE_INT();
 
             if (usCount < _pUart->usTxBufSize)
             {
@@ -471,13 +471,13 @@ static void UartSend(UART_T *_pUart, uint8_t *_ucaBuf, uint16_t _usLen)
         /* 将新数据填入发送缓冲区 */
         _pUart->pTxBuf[_pUart->usTxWrite] = _ucaBuf[i];
 
-        //   DISABLE_INT();
+        DISABLE_INT();
         if (++_pUart->usTxWrite >= _pUart->usTxBufSize)
         {
             _pUart->usTxWrite = 0;
         }
         _pUart->usTxCount++;
-        //   ENABLE_INT();
+        ENABLE_INT();
     }
     usart_interrupt_enable(_pUart->uart, USART_INT_TBE);
 }
@@ -496,9 +496,9 @@ static uint8_t UartGetChar(UART_T *_pUart, uint8_t *_pByte)
     uint16_t usCount;
 
     /* usRxWrite 变量在中断函数中被改写，主程序读取该变量时，必须进行临界区保护 */
-    // DISABLE_INT();
+    DISABLE_INT();
     usCount = _pUart->usRxCount;
-    // ENABLE_INT();
+    ENABLE_INT();
 
     /* 如果读和写索引相同，则返回0 */
     // if (_pUart->usRxRead == usRxWrite)
@@ -511,13 +511,13 @@ static uint8_t UartGetChar(UART_T *_pUart, uint8_t *_pByte)
         *_pByte = _pUart->pRxBuf[_pUart->usRxRead]; /* 从串口接收FIFO取1个数据 */
 
         /* 改写FIFO读索引 */
-        // DISABLE_INT();
+        DISABLE_INT();
         if (++_pUart->usRxRead >= _pUart->usRxBufSize)
         {
             _pUart->usRxRead = 0;
         }
         _pUart->usRxCount--;
-        // ENABLE_INT();
+        ENABLE_INT();
         return 1;
     }
 }
@@ -538,7 +538,8 @@ static void UartIRQ(UART_T *_pUart)
         /* 从串口接收数据寄存器读取数据存放到接收FIFO */
         uint8_t ch;
 
-        ch                                = usart_data_receive(_pUart->uart);
+        ch = usart_data_receive(_pUart->uart);
+
         _pUart->pRxBuf[_pUart->usRxWrite] = ch;
         if (++_pUart->usRxWrite >= _pUart->usRxBufSize)
         {

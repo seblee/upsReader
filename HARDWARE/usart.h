@@ -99,6 +99,9 @@ typedef enum
 #define U1_TX_EN() gpio_bit_set(GPIOA, GPIO_PIN_1)
 #define U1_RX_EN() gpio_bit_reset(GPIOA, GPIO_PIN_1)
 
+/* 开关全局中断的宏 */
+#define ENABLE_INT() __set_PRIMASK(0)  /* 使能全局中断 */
+#define DISABLE_INT() __set_PRIMASK(1) /* 禁止全局中断 */
 /* Private variables ---------------------------------------------------------*/
 
 /* Public variables ----------------------------------------------------------*/

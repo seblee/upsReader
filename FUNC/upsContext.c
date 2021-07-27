@@ -221,8 +221,7 @@ osEvent upsCommand(_upsInquiryCmd_t cmd, uint32_t timeout)
     }
     return ThreadEvent;
 }
- 
- 
+
 void Q3WSPro(char* buff)
 {
     char cache[35] = {0};
@@ -518,4 +517,3 @@ void QDWHPro(char* buff)
 {
     *buff = *buff;
 }
-

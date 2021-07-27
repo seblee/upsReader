@@ -92,7 +92,6 @@ void USART1_IRQHandler(void)
         /* transmit data */
         usart_interrupt_flag_clear(USART1, USART_INT_FLAG_TC);
         usart_interrupt_disable(USART1, USART_INT_TC);
-
         U1_RX_EN();
     }
 }
