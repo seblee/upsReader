@@ -73,9 +73,19 @@ void spiRcuConfig(void)
 void gpioConfig(void)
 {
     /* SPI0 GPIO config: NSS/PA4, SCK/PA5, MISO/PA6, MOSI/PA7 */
-    gpio_af_set(GPIOA, GPIO_AF_0, GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7);
-    gpio_mode_set(GPIOA, GPIO_MODE_AF, GPIO_PUPD_PULLUP, GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7);
-    gpio_output_options_set(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7);
+    gpio_af_set(GPIOA, GPIO_AF_0, GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7);
+    gpio_mode_set(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7);
+    gpio_output_options_set(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7);
+
+    /* enable and set key EXTI interrupt to the lowest priority */
+    nvic_irq_enable(EXTI4_15_IRQn, 2U, 0U);
+
+    /* connect key EXTI line to key GPIO pin */
+    syscfg_exti_line_config(EXTI_SOURCE_GPIOA, EXTI_SOURCE_PIN4);
+
+    /* configure key EXTI line */
+    exti_init(EXTI_4, EXTI_INTERRUPT, EXTI_TRIG_RISING);
+    exti_interrupt_flag_clear(EXTI_4);
 }
 
 /*!
@@ -112,11 +122,12 @@ void dmaConfig(void)
     /* SPI0_Rx DMA channel */
     dma_channel_disable(DMA_CH1);
 
-    nvic_irq_enable(DMA_Channel1_2_IRQn, 0, 0);
-    dma_interrupt_enable(DMA_CH1, DMA_INT_FTF);
+    // nvic_irq_enable(DMA_Channel1_2_IRQn, 0, 0);
+    // dma_interrupt_enable(DMA_CH1, DMA_INT_FTF);
+    // dma_interrupt_enable(DMA_CH2, DMA_INT_FTF);
 
-    dma_circulation_enable(DMA_CH1);
-    dma_circulation_enable(DMA_CH2);
+    // dma_circulation_enable(DMA_CH1);
+    // dma_circulation_enable(DMA_CH2);
 }
 
 /*!
@@ -134,13 +145,14 @@ void spiConfig(void)
     spi_init_struct.trans_mode           = SPI_TRANSMODE_FULLDUPLEX;
     spi_init_struct.device_mode          = SPI_SLAVE;
     spi_init_struct.frame_size           = SPI_FRAMESIZE_8BIT;
-    spi_init_struct.clock_polarity_phase = SPI_CK_PL_HIGH_PH_2EDGE;
+    spi_init_struct.clock_polarity_phase = SPI_CK_PL_LOW_PH_1EDGE;
     spi_init_struct.nss                  = SPI_NSS_SOFT;
     spi_init_struct.prescale             = SPI_PSC_8;
     spi_init_struct.endian               = SPI_ENDIAN_MSB;
     spi_init(SPI0, &spi_init_struct);
     /* SPI enable */
     spi_enable(SPI0);
+    spi_i2s_data_receive(SPI0);
     /* SPI DMA enable */
     spi_dma_enable(SPI0, SPI_DMA_TRANSMIT);
     spi_dma_enable(SPI0, SPI_DMA_RECEIVE);
@@ -153,10 +165,15 @@ void spiRestart(void)
     dma_channel_disable(DMA_CH2);
     /* SPI0_Rx DMA channel */
     dma_channel_disable(DMA_CH1);
-
+    spi_disable(SPI0);
     dma_transfer_number_config(DMA_CH2, transSize);
     dma_transfer_number_config(DMA_CH1, transSize);
+    spiConfig();
 
+    dma_interrupt_flag_clear(DMA_CH1, DMA_INT_FLAG_G);
+    dma_flag_clear(DMA_CH1, DMA_FLAG_G);
+    dma_interrupt_flag_clear(DMA_CH2, DMA_INT_FLAG_G);
+    dma_flag_clear(DMA_CH2, DMA_FLAG_G);
     /* SPI0_Tx DMA channel */
     dma_channel_enable(DMA_CH2);
     /* SPI0_Rx DMA channel */

@@ -107,13 +107,25 @@ void DMA_Channel1_2_IRQHandler(void)
 {
     if (dma_interrupt_flag_get(DMA_CH1, DMA_INT_FLAG_FTF))
     {
-        spiRxCallBack();
+        // spiRxCallBack();
         dma_interrupt_flag_clear(DMA_CH1, DMA_INT_FLAG_G);
         dma_flag_clear(DMA_CH1, DMA_FLAG_G);
     }
+    if (dma_interrupt_flag_get(DMA_CH1, DMA_INT_FLAG_ERR))
+    {
+        dma_interrupt_flag_clear(DMA_CH1, DMA_INT_FLAG_G);
+        dma_flag_clear(DMA_CH1, DMA_FLAG_G);
+    }
+
     if (dma_interrupt_flag_get(DMA_CH2, DMA_INT_FLAG_FTF))
     {
         dma_interrupt_flag_clear(DMA_CH2, DMA_INT_FLAG_G);
+        dma_flag_clear(DMA_CH2, DMA_FLAG_G);
+    }
+    if (dma_interrupt_flag_get(DMA_CH2, DMA_INT_FLAG_ERR))
+    {
+        dma_interrupt_flag_clear(DMA_CH2, DMA_INT_FLAG_G);
+        dma_flag_clear(DMA_CH2, DMA_FLAG_G);
     }
 }
 /*!
@@ -128,5 +140,14 @@ void DMA_Channel3_4_IRQHandler(void)
     {
         dma_interrupt_flag_clear(DMA_CH3, DMA_INT_FLAG_G);
         usart_interrupt_enable(USART1, USART_INT_TC);
+    }
+}
+
+void EXTI4_15_IRQHandler(void)
+{
+    if (RESET != exti_flag_get(EXTI_4))
+    {
+        exti_flag_clear(EXTI_4);
+        spiRxCallBack();
     }
 }

@@ -477,6 +477,12 @@
           <targetInfo name="upsReader"/>
         </targetInfos>
       </component>
+      <component Cclass="Device" Cgroup="GD32F1x0_StdPeripherals" Csub="EXTI" Cvendor="GigaDevice" Cversion="3.2.0" condition="GD32F1x0 STDPERIPHERALS RCU">
+        <package name="GD32F1x0_DFP" schemaVersion="1.1" url="http://gd32mcu.com/data/documents/pack/" vendor="GigaDevice" version="3.2.0"/>
+        <targetInfos>
+          <targetInfo name="upsReader"/>
+        </targetInfos>
+      </component>
       <component Cclass="Device" Cgroup="GD32F1x0_StdPeripherals" Csub="FWDGT" Cvendor="GigaDevice" Cversion="3.2.0" condition="GD32F1x0 STDPERIPHERALS RCU">
         <package name="GD32F1x0_DFP" schemaVersion="1.1" url="http://gd32mcu.com/data/documents/pack/" vendor="GigaDevice" version="3.2.0"/>
         <targetInfos>
@@ -502,6 +508,12 @@
         </targetInfos>
       </component>
       <component Cclass="Device" Cgroup="GD32F1x0_StdPeripherals" Csub="SPI_I2S" Cvendor="GigaDevice" Cversion="3.2.0" condition="GD32F1x0 STDPERIPHERALS RCU">
+        <package name="GD32F1x0_DFP" schemaVersion="1.1" url="http://gd32mcu.com/data/documents/pack/" vendor="GigaDevice" version="3.2.0"/>
+        <targetInfos>
+          <targetInfo name="upsReader"/>
+        </targetInfos>
+      </component>
+      <component Cclass="Device" Cgroup="GD32F1x0_StdPeripherals" Csub="SYSCFG" Cvendor="GigaDevice" Cversion="3.2.0" condition="GD32F1x0 STDPERIPHERALS RCU">
         <package name="GD32F1x0_DFP" schemaVersion="1.1" url="http://gd32mcu.com/data/documents/pack/" vendor="GigaDevice" version="3.2.0"/>
         <targetInfos>
           <targetInfo name="upsReader"/>
@@ -549,6 +561,14 @@
           <targetInfo name="upsReader"/>
         </targetInfos>
       </file>
+      <file attr="config" category="source" name="Device\Firmware\Peripherals\src\gd32f1x0_exti.c" version="3.2.0">
+        <instance index="0">RTE\Device\GD32F130F6\gd32f1x0_exti.c</instance>
+        <component Cclass="Device" Cgroup="GD32F1x0_StdPeripherals" Csub="EXTI" Cvendor="GigaDevice" Cversion="3.2.0" condition="GD32F1x0 STDPERIPHERALS RCU"/>
+        <package name="GD32F1x0_DFP" schemaVersion="1.1" url="http://gd32mcu.com/data/documents/pack/" vendor="GigaDevice" version="3.2.0"/>
+        <targetInfos>
+          <targetInfo name="upsReader"/>
+        </targetInfos>
+      </file>
       <file attr="config" category="source" name="Device\Firmware\Peripherals\src\gd32f1x0_fwdgt.c" version="3.2.0">
         <instance index="0">RTE\Device\GD32F130F6\gd32f1x0_fwdgt.c</instance>
         <component Cclass="Device" Cgroup="GD32F1x0_StdPeripherals" Csub="FWDGT" Cvendor="GigaDevice" Cversion="3.2.0" condition="GD32F1x0 STDPERIPHERALS RCU"/>
@@ -584,6 +604,14 @@
       <file attr="config" category="source" name="Device\Firmware\Peripherals\src\gd32f1x0_spi.c" version="3.2.0">
         <instance index="0">RTE\Device\GD32F130F6\gd32f1x0_spi.c</instance>
         <component Cclass="Device" Cgroup="GD32F1x0_StdPeripherals" Csub="SPI_I2S" Cvendor="GigaDevice" Cversion="3.2.0" condition="GD32F1x0 STDPERIPHERALS RCU"/>
+        <package name="GD32F1x0_DFP" schemaVersion="1.1" url="http://gd32mcu.com/data/documents/pack/" vendor="GigaDevice" version="3.2.0"/>
+        <targetInfos>
+          <targetInfo name="upsReader"/>
+        </targetInfos>
+      </file>
+      <file attr="config" category="source" name="Device\Firmware\Peripherals\src\gd32f1x0_syscfg.c" version="3.2.0">
+        <instance index="0">RTE\Device\GD32F130F6\gd32f1x0_syscfg.c</instance>
+        <component Cclass="Device" Cgroup="GD32F1x0_StdPeripherals" Csub="SYSCFG" Cvendor="GigaDevice" Cversion="3.2.0" condition="GD32F1x0 STDPERIPHERALS RCU"/>
         <package name="GD32F1x0_DFP" schemaVersion="1.1" url="http://gd32mcu.com/data/documents/pack/" vendor="GigaDevice" version="3.2.0"/>
         <targetInfos>
           <targetInfo name="upsReader"/>

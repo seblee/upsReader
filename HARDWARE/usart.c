@@ -39,7 +39,8 @@
 #include "gd32f1x0.h"
 #include <stdarg.h>
 #include <stdio.h>
-
+#define osObjectsPublic  // define objects in main module
+#include "osObjects.h"   // RTOS object definitions
 /* Private typedef -----------------------------------------------------------*/
 
 /* Private define ------------------------------------------------------------*/
@@ -116,10 +117,8 @@ void bspInitUart(void)
     ConfigUartNVIC(); /* 配置串口中断 */
 #if UART0_FIFO_EN
     u0SendOver();
-    u0SendOver();
 #endif
 #if UART1_FIFO_EN
-    u1SendOver();
     u1SendOver();
 #endif
 }
@@ -198,6 +197,36 @@ void comSendChar(COM_PORT_E _ucPort, uint8_t _ucByte)
 }
 /*
 *********************************************************************************************************
+*	函 数 名: comReceiveBuff
+*	功能说明: 从串口缓冲区读取1字节，非阻塞。无论有无数据均立即返回
+*	形    参: _ucPort: 端口号(COM1 - COM6)
+*			  _pByte: 接收到的数据存放在这个地址
+*	返 回 值: 表示读取到有效字节的长度
+*********************************************************************************************************
+*/
+uint8_t comReceiveBuff(COM_PORT_E _ucPort, uint8_t *_pByte, uint8_t len)
+{
+    UART_T *pUart;
+    uint8_t count = 0;
+    uint8_t *p    = _pByte;
+    pUart         = ComToUart(_ucPort);
+    if (pUart == 0)
+    {
+        return 0;
+    }
+
+    do
+    {
+        if (UartGetChar(pUart, p++))
+            count++;
+        else
+            break;
+    } while (count < len);
+
+    return count;
+}
+/*
+*********************************************************************************************************
 *	函 数 名: comGetChar
 *	功能说明: 从串口缓冲区读取1字节，非阻塞。无论有无数据均立即返回
 *	形    参: _ucPort: 端口号(COM1 - COM6)
@@ -271,6 +300,19 @@ void u0SendOver(void)
 {
     U0_RX_EN();
 }
+void u0ReceiveNew(uint8_t ch)
+{
+    usart_interrupt_flag_clear(USART0, USART_INT_FLAG_IDLE);
+    usart_interrupt_enable(USART0, USART_INT_IDLE);
+}
+
+void u0ReceiveOver(void)
+{
+    uint8_t cache[USART_BUF_SIZE] = {0};
+    rx0Count                      = comReceiveBuff(COM0, cache, USART_BUF_SIZE);
+    spiDataFifoPush(cache, rx0Count, 0);
+    rx0Count = 0;
+}
 #endif
 #if UART1_FIFO_EN == 1
 void u1SendBefor(void)
@@ -282,7 +324,6 @@ void u1SendOver(void)
     U1_RX_EN();
 }
 #endif
-// void u0ReciveNew(uint8_t ch){}
 
 /*
 *********************************************************************************************************
@@ -308,7 +349,8 @@ static void UartVarInit(void)
     g_tUart0.usTxCount   = 0;              /* 待发送的数据个数 */
     g_tUart0.SendBefor   = u0SendBefor;    /* 发送数据前的回调函数 */
     g_tUart0.SendOver    = u0SendOver;     /* 发送完毕后的回调函数 */
-    g_tUart0.ReciveNew   = 0;              /* 接收到新数据后的回调函数 */
+    g_tUart0.ReciveNew   = u0ReceiveNew;   /* 接收到新数据后的回调函数 */
+    g_tUart0.ReceiveOver = u0ReceiveOver;  /* 接收完毕的回调函数指针（空闲中断） */
 #endif
 
 #if UART1_FIFO_EN == 1
@@ -399,7 +441,7 @@ static void ConfigUartNVIC(void)
     nvic_irq_enable(USART0_IRQn, 0, 0);
     /* enable USART TBE interrupt */
     usart_interrupt_enable(USART0, USART_INT_RBNE);
-    usart_interrupt_enable(USART0, USART_INT_AM);
+    // usart_interrupt_enable(USART0, USART_INT_AM);
 #endif
 
 #if UART1_FIFO_EN == 1
@@ -559,11 +601,23 @@ static void UartIRQ(UART_T *_pUart)
                 _pUart->ReciveNew(ch);
             }
         }
+        usart_interrupt_flag_clear(_pUart->uart, USART_INT_FLAG_RBNE);
     }
     else if (usart_interrupt_flag_get(_pUart->uart, USART_INT_FLAG_ERR_ORERR | USART_INT_FLAG_ERR_NERR |
                                                         USART_INT_FLAG_ERR_FERR | USART_INT_FLAG_PERR))
     {
         usart_data_receive(_pUart->uart);
+    }
+
+    if (RESET != usart_interrupt_flag_get(_pUart->uart, USART_INT_FLAG_IDLE))
+    {
+        if (_pUart->ReciveNew)
+        {
+            _pUart->ReceiveOver();
+        }
+        usart_interrupt_flag_clear(_pUart->uart, USART_INT_FLAG_IDLE);
+        usart_interrupt_enable(_pUart->uart, USART_INT_RBNE);
+        usart_interrupt_disable(_pUart->uart, USART_INT_IDLE);
     }
 
     /* 处理发送缓冲区空中断 */
@@ -665,6 +719,7 @@ static void uart0_gpio_init(void)
     gpio_mode_set(GPIOA, GPIO_MODE_AF, GPIO_PUPD_PULLUP, GPIO_PIN_10);
     gpio_output_options_set(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_10MHZ, GPIO_PIN_10);
 
+    rcu_periph_clock_enable(RCU_GPIOB);
     // RS485 direction control
     gpio_mode_set(GPIOB, GPIO_MODE_OUTPUT, GPIO_PUPD_PULLDOWN, GPIO_PIN_1);
     gpio_output_options_set(GPIOB, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO_PIN_1);

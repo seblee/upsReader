@@ -4,6 +4,7 @@
 #include "crc16.h"
 #include "usart.h"
 #include "string.h"
+#include "led.h"
 /*----------------------------------------------------------------------------
  *      Thread 1 'Thread_Name': Sample thread
  *---------------------------------------------------------------------------*/
@@ -48,7 +49,9 @@ void spiThread(void const *argument)
 {
     osEvent Event;
     static uint8_t dataIndex = 0xa2;
+
     uart1_init(115200);
+    osDelay(100);
     spiInit();
     while (1)
     {
@@ -58,31 +61,39 @@ void spiThread(void const *argument)
         }
         else
         {
-            if (dataIndex != spiRxB[1])
-            {
-                uint16_t crc;
+            uint8_t *p;
+            p = memchr(spiRxB, 0x68, 100);
 
-                crc = CRC16_Modbus(spiRxB, spiRxB[3] + 6);
-                if (crc == 0)
+            if (p)
+            {
+                if (dataIndex != *(p + 1))
                 {
-                    dataIndex = spiRxB[1];
-                    if (spiRxB[2] == 0)
+                    uint16_t crc;
+
+                    crc = CRC16_Modbus(spiRxB, *(p + 3) + 6);
+                    if (crc == 0)
                     {
-                        memcpy(tx0buffer, &spiRxB[4], spiRxB[3]);
-                        // comSendBuf(COM0, &spiRxB[4], spiRxB[3]);
-                        // uart0_dma_send(tx0buffer, spiRxB[3]);
-                        // dma_interrupt_flag_clear(DMA_CH1, DMA_INT_FLAG_G);
+                        dataIndex = *(p + 1);
+                        if (*(p + 2) == 0)
+                        {
+                            memcpy(tx0buffer, p + 4, *(p + 3));
+                            comSendBuf(COM0, p + 4, *(p + 3));
+                        }
+
+                        if (*(p + 2) == 1)
+                        {
+                            memcpy(tx1buffer, p + 4, *(p + 3));
+                            U1_TX_EN();
+                            uart1_dma_send(tx1buffer, *(p + 3));
+                            dma_interrupt_flag_clear(DMA_CH1, DMA_INT_FLAG_G);
+                        }
                     }
-                    if (spiRxB[2] == 1)
+                    else
                     {
-                        memcpy(tx1buffer, &spiRxB[4], spiRxB[3]);
-                        U1_TX_EN();
-                        uart1_dma_send(tx1buffer, spiRxB[3]);
-                        dma_interrupt_flag_clear(DMA_CH1, DMA_INT_FLAG_G);
+                        led_toggle();  // Insert thread code here...
                     }
                 }
             }
-            spiDataFifoPull(spi0DmaTxBuffer);
         }
     }
 }
@@ -92,7 +103,8 @@ void spiDataFifoPush(uint8_t *cache, uint16_t len, uint8_t Uid)
     static uint8_t dataId = 0;
     uint16_t crc;
     message_t *message;
-
+    if (len == 0)
+        return;
     message = (message_t *)osPoolAlloc(mpool);  // Allocate a memory pool buffer
     if (!message)
         return;
@@ -140,4 +152,13 @@ void spiRxCallBack(void)
 {
     memcpy(spiRxB, spi0DmaRxBuffer, 128);
     osMessagePut(spiQueue, 1, 0);  // Post pointer to memory pool buffer
+    // {
+    //     memcpy(tx1buffer, spi0DmaRxBuffer, 30);
+    //     U1_TX_EN();
+    //     uart1_dma_send(tx1buffer, 30);
+    //     dma_interrupt_flag_clear(DMA_CH1, DMA_INT_FLAG_G);
+    // }
+    memset(spi0DmaRxBuffer, 0, 128);
+    spiDataFifoPull(spi0DmaTxBuffer);
+    spiRestart();
 }

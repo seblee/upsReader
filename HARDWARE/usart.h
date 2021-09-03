@@ -61,6 +61,7 @@ typedef struct
     void (*SendBefor)(void); /* 开始发送之前的回调函数指针（主要用于RS485切换到发送模式） */
     void (*SendOver)(void); /* 发送完毕的回调函数指针（主要用于RS485将发送模式切换为接收模式） */
     void (*ReciveNew)(uint8_t _byte); /* 串口收到数据的回调函数指针 */
+    void (*ReceiveOver)(void);        /* 接收完毕的回调函数指针（空闲中断） */
 } UART_T;
 /* 定义端口号 */
 typedef enum
@@ -70,7 +71,7 @@ typedef enum
 } COM_PORT_E;
 
 /* Private define ------------------------------------------------------------*/
-#define UART0_FIFO_EN 0
+#define UART0_FIFO_EN 1
 #define UART1_FIFO_EN 0
 #define UART2_FIFO_EN 0
 #define UART3_FIFO_EN 0
@@ -80,7 +81,7 @@ typedef enum
 
 /* 定义串口波特率和FIFO缓冲区大小，分为发送缓冲区和接收缓冲区, 支持全双工 */
 #if UART0_FIFO_EN == 1
-#define UART0_BAUD 9600
+#define UART0_BAUD 115200
 #define UART0_TX_BUF_SIZE 1 * 1024
 #define UART0_RX_BUF_SIZE 1 * 1024
 #endif
@@ -92,12 +93,21 @@ typedef enum
 #endif
 
 /* Private macro -------------------------------------------------------------*/
+#define RS485_ISOLATE
+#ifdef RS485_ISOLATE
+#define U0_TX_EN() gpio_bit_reset(GPIOB, GPIO_PIN_1)
+#define U0_RX_EN() gpio_bit_set(GPIOB, GPIO_PIN_1)
 
-#define U0_TX_EN() gpio_bit_set(GPIOA, GPIO_PIN_1)
-#define U0_RX_EN() gpio_bit_reset(GPIOA, GPIO_PIN_1)
+#define U1_TX_EN() gpio_bit_reset(GPIOA, GPIO_PIN_1)
+#define U1_RX_EN() gpio_bit_set(GPIOA, GPIO_PIN_1)
+
+#else
+#define U0_TX_EN() gpio_bit_set(GPIOB, GPIO_PIN_1)
+#define U0_RX_EN() gpio_bit_reset(GPIOB, GPIO_PIN_1)
 
 #define U1_TX_EN() gpio_bit_set(GPIOA, GPIO_PIN_1)
 #define U1_RX_EN() gpio_bit_reset(GPIOA, GPIO_PIN_1)
+#endif
 
 /* 开关全局中断的宏 */
 #define ENABLE_INT() __set_PRIMASK(0)  /* 使能全局中断 */
@@ -122,6 +132,7 @@ int fputc(int ch, FILE *f);
 void bspInitUart(void);
 void comSendBuf(COM_PORT_E _ucPort, uint8_t *_ucaBuf, uint16_t _usLen);
 void comSendChar(COM_PORT_E _ucPort, uint8_t _ucByte);
+uint8_t comReceiveBuff(COM_PORT_E _ucPort, uint8_t *_pByte, uint8_t len);
 uint8_t comGetChar(COM_PORT_E _ucPort, uint8_t *_pByte);
 
 void comClearTxFifo(COM_PORT_E _ucPort);

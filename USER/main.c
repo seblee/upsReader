@@ -17,8 +17,8 @@ int main(void)
 
     // initialize peripherals here
     led_init();
-   
-   // bspInitUart();
+
+    bspInitUart();
     IWDG_Configuration();
 
     // create 'thread' functions that start executing,
@@ -31,15 +31,19 @@ int main(void)
         led_toggle();  // Insert thread code here...
         fwdgt_counter_reload();
         // osThreadYield();  // suspend thread
+        {
+//            static uint8_t cache[10]={'1','1','1','1','1','1','1','1','\r','\n'};cache[0]++;
+//            comSendBuf(COM0,cache,10);
+        }
     }
 }
 
 void HardFault_Handler(void)
 {
-    while(1){
+    while (1)
+    {
     }
 }
-
 
 #ifdef USE_FULL_ASSERT
 /**
