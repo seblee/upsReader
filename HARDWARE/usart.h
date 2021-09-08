@@ -81,7 +81,7 @@ typedef enum
 
 /* 定义串口波特率和FIFO缓冲区大小，分为发送缓冲区和接收缓冲区, 支持全双工 */
 #if UART0_FIFO_EN == 1
-#define UART0_BAUD 115200
+#define UART0_BAUD 2400
 #define UART0_TX_BUF_SIZE 1 * 1024
 #define UART0_RX_BUF_SIZE 1 * 1024
 #endif

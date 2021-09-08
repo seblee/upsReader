@@ -18,7 +18,7 @@ typedef struct
     uint8_t rxData[128];
     uint16_t length;
 } message_t;
-#define mPoolSize 2
+#define mPoolSize 3 
 osPoolId mpool;
 osPoolDef(mpool, mPoolSize, message_t);  // define memory pool
 
@@ -43,14 +43,13 @@ int initSpiThread(void)
         return (-1);
     return (0);
 }
-uint8_t spiRxB[128] = {0};
-// spiRX
+
 void spiThread(void const *argument)
 {
     osEvent Event;
     static uint8_t dataIndex = 0xa2;
 
-    uart1_init(115200);
+    uart1_init(2400);
     osDelay(100);
     spiInit();
     while (1)
@@ -62,15 +61,15 @@ void spiThread(void const *argument)
         else
         {
             uint8_t *p;
-            p = memchr(spiRxB, 0x68, 100);
+            p = spi0DmaRxBuffer;
 
-            if (p)
+            if (spi0DmaRxBuffer[0] == 0x68)
             {
                 if (dataIndex != *(p + 1))
                 {
                     uint16_t crc;
 
-                    crc = CRC16_Modbus(spiRxB, *(p + 3) + 6);
+                    crc = CRC16_Modbus(spi0DmaRxBuffer, *(p + 3) + 6);
                     if (crc == 0)
                     {
                         dataIndex = *(p + 1);
@@ -94,6 +93,9 @@ void spiThread(void const *argument)
                     }
                 }
             }
+            memset(spi0DmaRxBuffer, 0, 128);
+            spiDataFifoPull(spi0DmaTxBuffer);
+            spiRestart();
         }
     }
 }
@@ -150,7 +152,6 @@ static uint16_t spiDataFifoPull(uint8_t *cache)
 
 void spiRxCallBack(void)
 {
-    memcpy(spiRxB, spi0DmaRxBuffer, 128);
     osMessagePut(spiQueue, 1, 0);  // Post pointer to memory pool buffer
     // {
     //     memcpy(tx1buffer, spi0DmaRxBuffer, 30);
@@ -158,7 +159,4 @@ void spiRxCallBack(void)
     //     uart1_dma_send(tx1buffer, 30);
     //     dma_interrupt_flag_clear(DMA_CH1, DMA_INT_FLAG_G);
     // }
-    memset(spi0DmaRxBuffer, 0, 128);
-    spiDataFifoPull(spi0DmaTxBuffer);
-    spiRestart();
 }
