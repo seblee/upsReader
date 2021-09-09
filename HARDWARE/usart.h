@@ -93,7 +93,7 @@ typedef enum
 #endif
 
 /* Private macro -------------------------------------------------------------*/
-#define RS485_ISOLATE
+//#define RS485_ISOLATE
 #ifdef RS485_ISOLATE
 #define U0_TX_EN() gpio_bit_reset(GPIOB, GPIO_PIN_1)
 #define U0_RX_EN() gpio_bit_set(GPIOB, GPIO_PIN_1)

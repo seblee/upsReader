@@ -49,7 +49,7 @@ void spiThread(void const *argument)
     osEvent Event;
     static uint8_t dataIndex = 0xa2;
 
-    uart1_init(2400);
+    uart1_init(9600);
     osDelay(100);
     spiInit();
     while (1)

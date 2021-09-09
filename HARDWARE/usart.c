@@ -312,9 +312,7 @@ void u0ReceiveOver(void)
     rx0Count                      = comReceiveBuff(COM0, cache, USART_BUF_SIZE);
     spiDataFifoPush(cache, rx0Count, 0);
     rx0Count = 0;
-#ifdef RS485_ISOLATE
     comClearRxFifo(COM0);
-#endif
 }
 #endif
 #if UART1_FIFO_EN == 1
