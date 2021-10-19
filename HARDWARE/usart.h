@@ -39,6 +39,7 @@
 /* Private includes ----------------------------------------------------------*/
 #include "gd32f1x0.h"
 #include <stdio.h>
+#include "sys.h"
 
 /* Private typedef -----------------------------------------------------------*/
 
@@ -81,7 +82,11 @@ typedef enum
 
 /* 定义串口波特率和FIFO缓冲区大小，分为发送缓冲区和接收缓冲区, 支持全双工 */
 #if UART0_FIFO_EN == 1
+#ifdef UARTFORUPS
 #define UART0_BAUD 2400
+#else
+#define UART0_BAUD 4800
+#endif
 #define UART0_TX_BUF_SIZE 1 * 1024
 #define UART0_RX_BUF_SIZE 1 * 1024
 #endif
@@ -93,7 +98,9 @@ typedef enum
 #endif
 
 /* Private macro -------------------------------------------------------------*/
-//#define RS485_ISOLATE
+#ifdef UARTFORUPS
+#define RS485_ISOLATE
+#endif
 #ifdef RS485_ISOLATE
 #define U0_TX_EN() gpio_bit_reset(GPIOB, GPIO_PIN_1)
 #define U0_RX_EN() gpio_bit_set(GPIOB, GPIO_PIN_1)

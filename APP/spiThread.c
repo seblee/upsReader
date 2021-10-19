@@ -5,6 +5,7 @@
 #include "usart.h"
 #include "string.h"
 #include "led.h"
+#include "sys.h"
 /*----------------------------------------------------------------------------
  *      Thread 1 'Thread_Name': Sample thread
  *---------------------------------------------------------------------------*/
@@ -18,7 +19,7 @@ typedef struct
     uint8_t rxData[128];
     uint16_t length;
 } message_t;
-#define mPoolSize 3 
+#define mPoolSize 3
 osPoolId mpool;
 osPoolDef(mpool, mPoolSize, message_t);  // define memory pool
 
@@ -48,8 +49,11 @@ void spiThread(void const *argument)
 {
     osEvent Event;
     static uint8_t dataIndex = 0xa2;
-
+#ifdef UARTFORUPS
+    uart1_init(2400);
+#else
     uart1_init(9600);
+#endif
     osDelay(100);
     spiInit();
     while (1)
